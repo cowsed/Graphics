@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./Rendering"
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
@@ -10,8 +11,6 @@ import (
 	"image/color"
 	"math"
 	"time"
-	"./Rendering"
-	
 )
 
 //Globalness
@@ -20,9 +19,9 @@ var WorldMap [][][]int
 
 //Camera Globals
 var (
-	camPos       = pixel.V(-500,-300)
-	oldCamPos    = pixel.ZV
-	
+	camPos    = pixel.V(-500, -300)
+	oldCamPos = pixel.ZV
+
 	heightCutoff = 0
 	mouseStart   = pixel.ZV
 	camSpeed     = 500.0
@@ -43,9 +42,9 @@ func run() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	//Add test sprite to test sprite rendering
-	person := render.ActorRenderer{nil, 12,   7, 5, 4}
+	person := render.ActorRenderer{nil, 12, 7, 5, 4}
 	person.RenderSprite()
 
 	last := time.Now() //For FPS Calculations
@@ -64,24 +63,21 @@ func run() {
 
 		//Calculate camera positioning and UI positioning
 		cam := pixel.IM.Scaled(camPos, camZoom).Moved(pixel.ZV.Sub(camPos))
-		oppCam:=pixel.IM.Moved(camPos).Scaled(camPos, 1/camZoom)
+		oppCam := pixel.IM.Moved(camPos).Scaled(camPos, 1/camZoom)
 		win.SetMatrix(cam)
-
 
 		//Clear the Window to prepare for drawing
 		win.Clear(VoidColor)
-			
 
-		render.RenderAll(win, &WorldMap,mapUpdated,	 heightCutoff)
+		render.RenderAll(win, &WorldMap, heightCutoff)
 		//render.DrawLines(len(WorldMap[0][0]),len(WorldMap[0]),4,win)
-		
-		mapUpdated=false
+
+		mapUpdated = false
 
 		//UI Stuff
-		baseMx:=oppCam
-		fmt.Fprintf(basicTxt,"FPS: %d", int(1/dt))
-		basicTxt.Draw(win,  baseMx.Scaled(camPos,2))
-
+		baseMx := oppCam
+		fmt.Fprintf(basicTxt, "FPS: %d", int(1/dt))
+		basicTxt.Draw(win, baseMx.Scaled(camPos, 2))
 
 		//Update Window
 		win.Update()
@@ -92,47 +88,43 @@ func main() {
 	//Load Renderer
 	render.InitRender()
 
-
-	WorldMap = GenMap2(64,64,6)
+	WorldMap = GenMap2(64, 64, 6)
 	//Begin
 	pixelgl.Run(run)
 }
 
+func handleInput(win *pixelgl.Window) {
+	//Handle Input
+	//Mouse
+	if win.JustPressed(pixelgl.MouseButtonLeft) {
+		oldCamPos = camPos
+		mouseStart = win.MousePosition()
+	}
+	if win.Pressed(pixelgl.MouseButtonLeft) {
 
+		camPos = oldCamPos.Add(mouseStart.Sub(win.MousePosition()).Scaled(1.0 / camZoom))
+	}
 
-func handleInput(win *pixelgl.Window){
-		//Handle Input
-		//Mouse
-		if win.JustPressed(pixelgl.MouseButtonLeft) {
-			oldCamPos = camPos
-			mouseStart = win.MousePosition()
+	camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
+
+	//Keys
+	//
+	if win.JustPressed(pixelgl.KeyEqual) {
+		if heightCutoff > 0 {
+			heightCutoff--
+			render.SetChanged(true)
 		}
-		if win.Pressed(pixelgl.MouseButtonLeft) {
-
-			camPos = oldCamPos.Add(mouseStart.Sub(win.MousePosition()).Scaled(1.0 / camZoom))
+	}
+	if win.JustPressed(pixelgl.KeyMinus) {
+		if heightCutoff < len(WorldMap)-1 {
+			heightCutoff++
+			render.SetChanged(true)
 		}
+	}
 
-		camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
-
-		//Keys
-		if win.JustPressed(pixelgl.KeyEqual) {
-			if heightCutoff>0{
-				heightCutoff--;
-				mapUpdated=true
-			}
-		}		
-		if win.JustPressed(pixelgl.KeyMinus) {
-			if heightCutoff<len(WorldMap)-1{
-				heightCutoff++;			
-				mapUpdated=true
-			}
-		}
-
-		//Quitting the game
-		if win.Pressed(pixelgl.KeyEscape) {
-			win.SetClosed(true)
-		}
-
-
+	//Quitting the game
+	if win.Pressed(pixelgl.KeyEscape) {
+		win.SetClosed(true)
+	}
 
 }

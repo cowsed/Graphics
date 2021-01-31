@@ -1,6 +1,5 @@
 package materials
 
-
 const (
 	GRASS_1 = 151
 	GRASS_2 = 152
@@ -25,10 +24,9 @@ const (
 	HILL_FR2 = 113
 	HILL_FL2 = 114
 
-	ROCK    = 105
+	ROCK   = 105
 	ROCK_2 = 106
-	
-	
+
 	ROCK_FR = 92
 	ROCK_F  = 93
 	ROCK_R  = 94

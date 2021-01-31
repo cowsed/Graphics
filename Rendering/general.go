@@ -1,7 +1,7 @@
 package render
 
 import (
-	_"fmt"
+	_ "fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
@@ -11,6 +11,14 @@ import (
 	_ "image/png"
 	"os"
 )
+
+//Tells the renderer that something has changed
+func SetChanged(change bool) {
+	changed = change
+}
+
+//Loads a sprite sheet into chunks of wxh
+//Returns the loaded image and the bounds of the sprites
 func loadSheet(fname string, w, h int) (pixel.Picture, []pixel.Rect) {
 
 	spritesheet, err := loadPicture(fname)
@@ -29,6 +37,8 @@ func loadSheet(fname string, w, h int) (pixel.Picture, []pixel.Rect) {
 }
 
 //Helper Loader Functions
+
+//Loads the picture
 func loadPicture(path string) (pixel.Picture, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -42,7 +52,8 @@ func loadPicture(path string) (pixel.Picture, error) {
 	return pixel.PictureDataFromImage(img), nil
 }
 
-
+//Bit of a debug function
+//Draws grid lines at d
 func DrawLines(w, h, d int, win *pixelgl.Window) {
 	lineWidth := 2.0
 	imd := imdraw.New(nil)
