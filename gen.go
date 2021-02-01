@@ -188,7 +188,7 @@ func GenMap2(w, h, d int) [][][]int {
 		for y := 0; y < h; y++ {
 			row := make([]int, 0)
 			for x := 0; x < w; x++ {
-				block := 160
+				block := materials.ROCK
 				if z > landFunc(x,y){
 					block = 0
 				} else if z == landFunc(x,y) {

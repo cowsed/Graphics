@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"image/color"
 	_ "github.com/faiface/pixel/text"
 	_ "image"
 	_ "image/png"
@@ -37,7 +38,11 @@ func RenderAll(win *pixelgl.Window, WorldMap *[][][]int, heightCutoff int) {
 				yp := h - y - 1 //needs to be reversed because of orientation
 				for x := 0; x < w; x++ {
 
-					if CheckVisibility(x, y, yp, z, w, h, d, heightCutoff, WorldMap) {
+					if visible, inside := CheckVisibility(x, y, yp, z, w, h, d, heightCutoff, WorldMap); visible {
+						//if its inside darken it ab it
+						if inside{
+							TileBatch.SetColorMask(color.RGBA{60,60,60,255})
+						}
 						//Render Sprites (This is sort of a bad idea because it takes a map which is unfun to allocate)
 						//But may be better than searching through the list of
 						key := string(x) + "" + string(y) + "," + string(z)
@@ -56,9 +61,14 @@ func RenderAll(win *pixelgl.Window, WorldMap *[][][]int, heightCutoff int) {
 						TileIndex := (*WorldMap)[z][yp][x]
 						if TileIndex != 0 {
 							TileIndex-- //Decrement to index
+
+							
 							sprite := pixel.NewSprite(spriteSheet, sheetFrames[TileIndex])
 							sprite.Draw(TileBatch, mx)
 							tilesDrawn++
+						}
+						if inside{
+							TileBatch.SetColorMask(color.RGBA{255,255,255,255})
 						}
 					}
 
@@ -73,7 +83,7 @@ func RenderAll(win *pixelgl.Window, WorldMap *[][][]int, heightCutoff int) {
 	changed=false //Reset changes
 }
 
-func CheckVisibility(x, y, yp, z, w, h, d, z_cutoff int, WorldMap *[][][]int) bool {
+func CheckVisibility(x, y, yp, z, w, h, d, z_cutoff int, WorldMap *[][][]int) (bool,bool) {
 	onFrontFace := (x == w-1) || (y == 0) || (z == d-z_cutoff-1)
 
 	exposed := false
@@ -82,7 +92,7 @@ func CheckVisibility(x, y, yp, z, w, h, d, z_cutoff int, WorldMap *[][][]int) bo
 		exposed = (*WorldMap)[z+1][yp][x] == 0
 	}
 
-	return onFrontFace || exposed
+	return onFrontFace || exposed, !exposed
 }
 
 func InitRender() {

@@ -16,11 +16,12 @@ import (
 type ActorRenderer struct {
 	Sheet      *pixel.Picture
 	FrameIndex int
-	X, Y, Z    int
+	
 }
 
-func (a ActorRenderer) RenderSprite() {
+func (a ActorRenderer) RenderSprite(x,y,z int) {
 	//Add the current sprite to the pool to be rendered
-	key := string(int(a.X)) + "" + string(int(a.Y)) + "," + string(int(a.Z))
+	key := string(int(x)) + "" + string(int(y)) + "," + string(int(z))
 	SpritesToDraw[key] = &a
+	SetChanged(true)
 }
