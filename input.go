@@ -1,6 +1,7 @@
 package main
 
 import(
+	"fmt"
 	"./Rendering"
 	_"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
@@ -21,8 +22,14 @@ func handleInput(win *pixelgl.Window) {
 
 	camZoom *= math.Pow(camZoomSpeed, win.MouseScroll().Y)
 
+
+	if win.JustPressed(pixelgl.KeyP) {
+		DBBool=!DBBool
+		fmt.Println("change",DBBool)
+	}
+
 	//Keys
-	//
+	//Moving Height cutoff
 	if win.JustPressed(pixelgl.KeyEqual) {
 		if heightCutoff > 0 {
 			heightCutoff--

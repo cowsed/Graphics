@@ -46,12 +46,21 @@ func RenderAll(win *pixelgl.Window, WorldMap *[][][]int, heightCutoff int) {
 						//Render Sprites (This is sort of a bad idea because it takes a map which is unfun to allocate)
 						//But may be better than searching through the list of
 						key := string(x) + "" + string(y) + "," + string(z)
-						if val, ok := SpritesToDraw[key]; ok { //Check if there is a Sprite here
+						if sprite, ok := SpritesToDraw[key]; ok { //Check if there is a Sprite here
 							//Render the sprite
-							mx := pixel.IM.Moved(toIsoCoords(x, y, z)) //Position sprite in space
-							sprite := pixel.NewSprite(spriteSheet, sheetFrames[(*val).FrameIndex])
-							sprite.Draw(TileBatch, mx)
-							spritesDrawn++
+							var spriteIndex int
+							fmt.Println("Last", (*sprite))
+
+							if (*sprite).Visible{
+								spriteIndex=(*sprite).FrameIndex
+							} else {
+								spriteIndex=159
+							}
+								mx := pixel.IM.Moved(toIsoCoords(x, y, z)) //Position sprite in space
+								sprite := pixel.NewSprite(spriteSheet, sheetFrames[spriteIndex])
+								sprite.Draw(TileBatch, mx)
+								spritesDrawn++
+
 						}
 
 						//Render World

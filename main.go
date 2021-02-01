@@ -14,14 +14,23 @@ import (
 	"time"
 )
 const(
-    WorldWidth int =128
-    WorldHeight int =128
+    //WorldWidth is the size of the world (x)
+    WorldWidth int =16
+     //WorldHeight is the height of generated world (y)
+    WorldHeight int =16
+    //WorldDepth is the depth of generated world z
     WorldDepth int = 20
 )
-//Globalness
+//Globals
+
+//VoidColor defines the color of the background
 var VoidColor color.RGBA = colornames.Skyblue
+//WorldMap holds the world grid that holds the world (may soon be changed to a more memory friendly version
 var WorldMap [][][]int
 
+//Debug things
+var DBBool bool = false
+var DBBoolLast bool = false
 //Camera Globals
 var (
 	camPos    = pixel.V(-500, -300)
@@ -49,12 +58,16 @@ func run() {
 	}
 
 	//Add test sprite to test sprite rendering
-	person := people.Person{"Timothy",0,0,4,&render.ActorRenderer{nil, 100}}
-	person.Render()
+    personRenderer:=&render.ActorRenderer{Sheet: nil, FrameIndex: 120}
+	person := people.Person{Name: "Timothy",X: 0,Y: 1,Z: 12,Renderer: personRenderer}
+    person.UpdateRenderAll(true)
+	personRenderer.AddSprite("")
+
 
 	last := time.Now() //For FPS Calculations
 	//Main Loop
 	for !win.Closed() {
+
 		//Fps calculations
 		dt := time.Since(last).Seconds()
 		last = time.Now()
@@ -65,6 +78,16 @@ func run() {
 
 		//Input Handling
 		handleInput(win)
+
+        if DBBoolLast!=DBBool{
+			if DBBool{
+	        	person.X=0
+	        } else {person.X=1}
+	        person.UpdateRenderAll(DBBool)
+	    }
+		DBBoolLast=DBBool
+		//personRenderer.RemoveSprite()
+
 
 		//Calculate camera positioning and UI positioning
 		cam := pixel.IM.Scaled(camPos, camZoom).Moved(pixel.ZV.Sub(camPos))

@@ -5,7 +5,7 @@ import "fmt"
 import "math"
 import "math/rand"
 import "./Materials"
-
+/*
 func MakeFlags(w int, h int, x int, y int, m [][]int) string {
 	flag := []bool{true, true, true, true, true, true, true, true, true} //representative of if its safe to check
 	if y == 0 {
@@ -44,7 +44,7 @@ func MakeFlags(w int, h int, x int, y int, m [][]int) string {
 	fmt.Println("S: ", s)
 	return s
 }
-
+*/
 /*
 
 func makeArrangement(flags string) int {
@@ -106,6 +106,7 @@ func GenHillSmart() [][][]int {
 }
 */
 
+//GenMap1 generates a boring 3d map
 func GenMap1(w, h, d int) [][][]int {
 	world := [][][]int{}
 	i := 0
@@ -177,6 +178,7 @@ func landFunc(x,y int) int {
 func landFuncG(x,y int) int {
 	return 7+2*y-3*x
 }
+//GenMap2 generates a 3d world of the form z=f(x,y) approx where f is landFunc()
 func GenMap2(w, h, d int) [][][]int {
 
 
