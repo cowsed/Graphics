@@ -1,7 +1,7 @@
 package render
 
 import (
-	 "fmt"
+	 _"fmt"
 	//"math/rand"
 	"github.com/faiface/pixel"
 	_ "github.com/faiface/pixel/imdraw"
@@ -42,7 +42,6 @@ func (a ActorRenderer) RemoveSprite(key string){
 	if key==""{
 		key=a.makeKey()
 	}
-	
 	delete(SpritesToDraw,key)
 	SetChanged(true)
 }
@@ -60,5 +59,4 @@ func (a *ActorRenderer) UpdatePos(x,y,z int){
 	a.Z=z
 	a.RemoveSprite(oldKey)
 	a.AddSprite( a.makeKey() )
-	fmt.Println("First",a.X,a.Y,a.Z)
 }

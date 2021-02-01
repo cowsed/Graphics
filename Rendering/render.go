@@ -4,12 +4,22 @@ import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"golang.org/x/image/colornames"
+
+	
 	"image/color"
+
 	_ "github.com/faiface/pixel/text"
 	_ "image"
 	_ "image/png"
 	_ "os"
 )
+
+//VoidColor defines the color of the background
+var VoidColor color.RGBA = colornames.Skyblue
+
+
+
 
 var spriteSheet pixel.Picture //maybe load this by stitching together others but for now this
 var sheetFrames []pixel.Rect
@@ -19,8 +29,29 @@ var TileBatch *pixel.Batch //Set of Sprites
 var SpritesToDraw map[string]*ActorRenderer
 
 var changed = true
+//var mapUpdated = true
 
-func RenderAll(win *pixelgl.Window, WorldMap *[][][]int, heightCutoff int) {
+
+
+func Render(win *pixelgl.Window, WorldMap *[][][]int){
+	//Calculate camera positioning and UI positioning
+	cam := pixel.IM.Scaled(camPos, camZoom).Moved(pixel.ZV.Sub(camPos))
+	//oppCam := pixel.IM.Moved(camPos).Scaled(camPos, 1/camZoom)
+	win.SetMatrix(cam)
+
+	//Clear the Window to prepare for drawing
+	win.Clear(VoidColor)
+	RenderWorld(win, WorldMap, heightCutoff)
+	//render.DrawLines(len(WorldMap[0][0]),len(WorldMap[0]),4,win)
+	
+	//Render UI
+	RenderUI(win)
+	//Text Setup
+
+
+}
+
+func RenderWorld(win *pixelgl.Window, WorldMap *[][][]int, heightCutoff int) {
 	//Trackers
 	spritesDrawn := 0
 	tilesDrawn := 0
@@ -30,7 +61,7 @@ func RenderAll(win *pixelgl.Window, WorldMap *[][][]int, heightCutoff int) {
 	w := len((*WorldMap)[0][0])
 
 	if changed { //Reset Batch
-		TileBatch = pixel.NewBatch(&pixel.TrianglesData{}, spriteSheet)
+
 		TileBatch.Clear()
 
 		for z := 0; z < d-heightCutoff; z++ {
@@ -108,5 +139,5 @@ func InitRender() {
 	spriteSheet, sheetFrames = loadSheet("Assets/outside4.png", 64, 64)
 	fmt.Println("Loaded Environment")
 	SpritesToDraw = make(map[string]*ActorRenderer)
-
+	TileBatch = pixel.NewBatch(&pixel.TrianglesData{}, spriteSheet)
 }
