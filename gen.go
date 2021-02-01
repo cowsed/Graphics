@@ -26,11 +26,8 @@ func MakeFlags(w int, h int, x int, y int, m [][]int) string {
 		flag[3] = false
 		flag[4] = false
 	}
-
 	cm := [...][2]int{[2]int{0, 0}, [2]int{0, -1}, [2]int{1, -1}, [2]int{1, 0}, [2]int{1, 1}, [2]int{0, 1}, [2]int{-1, 1}, [2]int{-1, 0}, [2]int{-1, -1}}
-
 	s := ""
-
 	for i, p := range cm {
 		if flag[i] {
 			r := m[y+p[1]][x+p[0]]
@@ -45,7 +42,6 @@ func MakeFlags(w int, h int, x int, y int, m [][]int) string {
 		}
 	}
 	fmt.Println("S: ", s)
-
 	return s
 }
 
@@ -163,9 +159,26 @@ func GenMap3() [][][]int {
 	}
 }
 */
+func landFunc(x,y int) int {
+//	freq := .5
+	//z=f(x,y)
 
+	r:=math.Sqrt(float64((x-64)*(x-64))+float64((y-64)*(y-64)))/30
+	t:=math.Atan2(float64(x)-64,float64(y)-64)
+	f:=math.Cos(t*6)
+
+	v:=0.0
+	if f-r<4{v=f-r}
+	
+	return  3+int(v)
+	
+	//30+int(10*math.Sin(r*.3))//int(61+2*math.Sin(float64(x)*freq)*math.Sin(float64(y)*freq))
+}
+func landFuncG(x,y int) int {
+	return 7+2*y-3*x
+}
 func GenMap2(w, h, d int) [][][]int {
-	freq := .5
+
 
 	world := [][][]int{}
 
@@ -176,9 +189,9 @@ func GenMap2(w, h, d int) [][][]int {
 			row := make([]int, 0)
 			for x := 0; x < w; x++ {
 				block := 160
-				if z > int(3+2*math.Sin(float64(x)*freq)*math.Sin(float64(y)*freq)) {
+				if z > landFunc(x,y){
 					block = 0
-				} else if z == int(3+2*math.Sin(float64(x)*freq)*math.Sin(float64(y)*freq)) {
+				} else if z == landFunc(x,y) {
 					block = materials.HILL_C
 				} else if z == 0 {
 					block = materials.ROCK + rand.Intn(2)

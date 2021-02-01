@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+
 //Globalness
 var VoidColor color.RGBA = colornames.Skyblue
 var WorldMap [][][]int
@@ -36,7 +37,7 @@ func run() {
 	cfg := pixelgl.WindowConfig{
 		Title:  "Visualization",
 		Bounds: pixel.R(0, 0, 1000, 600),
-		VSync:  true,
+		VSync:  false,
 	}
 	win, err := pixelgl.NewWindow(cfg)
 	if err != nil {
@@ -44,7 +45,7 @@ func run() {
 	}
 
 	//Add test sprite to test sprite rendering
-	person := render.ActorRenderer{nil, 12, 7, 5, 4}
+	person := render.ActorRenderer{nil, 100, 12,0, 3}
 	person.RenderSprite()
 
 	last := time.Now() //For FPS Calculations
@@ -85,10 +86,11 @@ func run() {
 }
 
 func main() {
+
 	//Load Renderer
 	render.InitRender()
 
-	WorldMap = GenMap2(64, 64, 6)
+	WorldMap = GenMap2(140, 140, 8)
 	//Begin
 	pixelgl.Run(run)
 }

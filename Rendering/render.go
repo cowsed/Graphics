@@ -26,7 +26,7 @@ func RenderAll(win *pixelgl.Window, WorldMap *[][][]int, heightCutoff int) {
 	//Dimensions of the world map
 	d := len((*WorldMap))
 	h := len((*WorldMap)[0])
-	w := len((*WorldMap)[0][1])
+	w := len((*WorldMap)[0][0])
 
 	if changed { //Reset Batch
 		TileBatch = pixel.NewBatch(&pixel.TrianglesData{}, spriteSheet)
@@ -67,8 +67,10 @@ func RenderAll(win *pixelgl.Window, WorldMap *[][][]int, heightCutoff int) {
 		}
 
 	}
+
 	TileBatch.Draw(win) //Draw the batch no matter what
 
+	changed=false //Reset changes
 }
 
 func CheckVisibility(x, y, yp, z, w, h, d, z_cutoff int, WorldMap *[][][]int) bool {
