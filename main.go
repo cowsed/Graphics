@@ -13,8 +13,11 @@ import (
 
 	"time"
 )
-
-
+const(
+    WorldWidth int =128
+    WorldHeight int =128
+    WorldDepth int = 20
+)
 //Globalness
 var VoidColor color.RGBA = colornames.Skyblue
 var WorldMap [][][]int
@@ -38,7 +41,7 @@ func run() {
 	cfg := pixelgl.WindowConfig{
 		Title:  "Visualization",
 		Bounds: pixel.R(0, 0, 1000, 600),
-		VSync:  true,
+		VSync:  false,
 	}
 	win, err := pixelgl.NewWindow(cfg)
 	if err != nil {
@@ -46,7 +49,7 @@ func run() {
 	}
 
 	//Add test sprite to test sprite rendering
-	person := people.Person{"Timothy",0,0,1,&render.ActorRenderer{nil, 100}}
+	person := people.Person{"Timothy",0,0,4,&render.ActorRenderer{nil, 100}}
 	person.Render()
 
 	last := time.Now() //For FPS Calculations
@@ -78,7 +81,8 @@ func run() {
 
 		//UI Stuff
 		baseMx := oppCam
-		fmt.Fprintf(basicTxt, "FPS: %d", int(1/dt))
+		fmt.Fprintf(basicTxt, "FPS: %d\n", int(1/dt))
+		fmt.Fprintf(basicTxt, "Height Cutoff: %d", WorldDepth-heightCutoff)
 		basicTxt.Draw(win, baseMx.Scaled(camPos, 2))
 
 		//Update Window
@@ -91,7 +95,7 @@ func main() {
 	//Load Renderer
 	render.InitRender()
 
-	WorldMap = GenMap2(140, 140, 8)
+	WorldMap = GenMap2(WorldWidth, WorldHeight, WorldDepth)
 	//Begin
 	pixelgl.Run(run)
 }

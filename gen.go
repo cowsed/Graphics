@@ -170,7 +170,7 @@ func landFunc(x,y int) int {
 	v:=0.0
 	if f-r<4{v=f-r}
 	
-	return  3+int(v)
+	return  10+int(v)
 	
 	//30+int(10*math.Sin(r*.3))//int(61+2*math.Sin(float64(x)*freq)*math.Sin(float64(y)*freq))
 }
@@ -180,13 +180,13 @@ func landFuncG(x,y int) int {
 func GenMap2(w, h, d int) [][][]int {
 
 
-	world := [][][]int{}
+	world := make([][][]int,0,d)
 
 	for z := 0; z < d; z++ {
-		floor := make([][]int, 0)
+		floor := make([][]int, 0,h)
 
 		for y := 0; y < h; y++ {
-			row := make([]int, 0)
+			row := make([]int, 0,w)
 			for x := 0; x < w; x++ {
 				block := materials.ROCK
 				if z > landFunc(x,y){
