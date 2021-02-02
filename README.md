@@ -7,6 +7,12 @@ Inspired by patterns in [Game Programming Patterns](https://gameprogrammingpatte
 I realized I needed a way to visually see what was happening to make things easier to program so here is this.
 
 
+## Features
+[x] Isometric rendering of the world
+[ ] Correct Sprite and animation rendering
+[ ] Easy sound interface
+[ ] Actual Simulation elements
+
 ## Dependencies
 https://github.com/faiface/pixel
 64x64 tiles from around the internet
@@ -18,10 +24,10 @@ https://github.com/faiface/pixel
 ## Controls
 
 ### Mouse
-LMB + Drag - Move the camera
-Scroll Wheel - zoom in/out
+- LMB + Drag - Move the camera
+- Scroll Wheel - zoom in/out
 
 ### Keys
-u - toggle Debug UI
-v - toggle VSync
-esc - quit
+- u - toggle Debug UI
+- v - toggle VSync
+- esc - quit
