@@ -47,6 +47,7 @@ func run() {
 		Title:  "Visualization",
 		Bounds: pixel.R(0, 0, 1000, 600),
 		VSync:  DoVSync,
+		Resizable: true,
 	}
 	win, err := pixelgl.NewWindow(cfg)
 	if err != nil {

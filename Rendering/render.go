@@ -39,7 +39,7 @@ func Render(win *pixelgl.Window, WorldMap []*[][][]int, w,h int){
 
 
 	//Calculate camera positioning and UI positioning
-	cam := pixel.IM.Scaled(camPos, camZoom).Moved(pixel.ZV.Sub(camPos))
+	cam := pixel.IM.Scaled(camPos.Add(win.Bounds().Center()), camZoom).Moved(pixel.ZV.Sub(camPos))
 	//oppCam := pixel.IM.Moved(camPos).Scaled(camPos, 1/camZoom)
 	win.SetMatrix(cam)
 
