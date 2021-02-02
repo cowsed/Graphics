@@ -190,13 +190,13 @@ func GenMap2(w, h, d int) [][][]int {
 		for y := 0; y < h; y++ {
 			row := make([]int, 0,w)
 			for x := 0; x < w; x++ {
-				block := materials.ROCK
+				block := materials.ROCK_BLOCK_1+ rand.Intn(2)
 				if z > landFunc(x,y){
 					block = 0
 				} else if z == landFunc(x,y) {
 					block = materials.HILL_C
 				} else if z == 0 {
-					block = materials.ROCK + rand.Intn(2)
+					block = materials.ROCK_BLOCK_1 + rand.Intn(2)
 				}
 
 				row = append(row, block)

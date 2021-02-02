@@ -8,7 +8,7 @@ import(
 
 //Camera Globals
 var (
-	camPos    = pixel.V(-500, -300)
+	camPos    = pixel.V(800, 800)
 	oldCamPos = pixel.ZV
 	mouseStart   = pixel.ZV
 	camSpeed     = 500.0
@@ -33,13 +33,13 @@ func CameraContinueMove(mousePos pixel.Vec){
 func IncHeightCutoff(min int){
 	if heightCutoff > min {
 		heightCutoff--
-		SetChanged(true)
+		SetAllChanged(true)
 	}
 }
 
 func DecHeightCutoff(max int){
 	if heightCutoff < max-1 {
 		heightCutoff++
-		SetChanged(true)
+		SetAllChanged(true)
 	}
 }

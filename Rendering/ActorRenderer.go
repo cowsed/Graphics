@@ -16,12 +16,15 @@ import (
 type ActorRenderer struct {
 	Sheet      *pixel.Picture
 	FrameIndex int
+	ChunkX, ChunkY int
 	X,Y,Z int
 	Visible bool
 }
 func (a ActorRenderer) makeKey() string {
 	return string(int(a.X)) + "" + string(int(a.Y)) + "," + string(int(a.Z))
-	
+}
+func (a ActorRenderer) makeChunkIndex() int {
+	return a.ChunkX+a.ChunkY*3
 }
 
 //Add Sprite adds the sprite to the pool of sprites to be included in the batch
@@ -32,8 +35,11 @@ func (a ActorRenderer) AddSprite(key string) {
 	if key==""{
 		key=a.makeKey()
 	}
-	SpritesToDraw[key] = &a
-	SetChanged(true)
+	//Create chunk index
+	ci:=a.makeChunkIndex()
+	SpritesToDraw[ci][key] = &a
+
+	SetChanged(true,ci)
 }
 
 //Remove the sprite from the pool
@@ -42,8 +48,11 @@ func (a ActorRenderer) RemoveSprite(key string){
 	if key==""{
 		key=a.makeKey()
 	}
-	delete(SpritesToDraw,key)
-	SetChanged(true)
+	//Create chunk index
+	ci:=a.makeChunkIndex()
+
+	delete(SpritesToDraw[ci],key)
+	SetChanged(true,ci)
 }
 
 func (a *ActorRenderer) UpdateVisibility( visible bool){

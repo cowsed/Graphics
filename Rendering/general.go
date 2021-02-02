@@ -13,9 +13,15 @@ import (
 )
 
 //Tells the renderer that something has changed
-func SetChanged(change bool) {
-	changed = change
+func SetChanged(change bool, index int) {
+	changes[index] = change
 }
+func SetAllChanged(val bool){
+	for i:=0; i<9; i++{
+		SetChanged(val, i)
+	}
+}
+
 
 //Loads a sprite sheet into chunks of wxh
 //Returns the loaded image and the bounds of the sprites

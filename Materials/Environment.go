@@ -24,8 +24,8 @@ const (
 	HILL_FR2 = 113
 	HILL_FL2 = 114
 
-	ROCK   = 105
-	ROCK_2 = 106
+	ROCK_BLOCK_1   = 105
+	ROCK_BLOCK_2 = 106
 
 	ROCK_FR = 92
 	ROCK_F  = 93
