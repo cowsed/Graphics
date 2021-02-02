@@ -18,6 +18,8 @@ var maxFps = 0.0
 var minFps = 40000.0
 var DBStrings []string
 
+var DBUIEnabled = true
+
 func RenderUI(win *pixelgl.Window){
 	basicTxt := text.New(pixel.V(0, 0), basicAtlas)
 
@@ -41,7 +43,13 @@ func RenderUI(win *pixelgl.Window){
 	fmt.Fprintf(basicTxt, "Height Cutoff: %d",16-heightCutoff)
 
 	//Draw the text at 0,0
-	basicTxt.Draw(win,pixel.IM.Scaled(pixel.ZV,2))// baseMx.Scaled(camPos, 2))
+	if DBUIEnabled{
+		basicTxt.Draw(win,pixel.IM.Scaled(pixel.ZV,2))// baseMx.Scaled(camPos, 2))
+	}
+}
+
+func ToggleUI(){
+	DBUIEnabled=!DBUIEnabled
 
 }
 

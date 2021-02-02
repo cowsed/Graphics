@@ -25,6 +25,17 @@ func handleInput(win *pixelgl.Window) {
 		DBBool=!DBBool
 		fmt.Println("change",DBBool)
 	}
+	//Toggle VSync
+	if win.JustPressed(pixelgl.KeyV) {
+		DoVSync=!DoVSync
+		win.SetVSync(DoVSync)
+	}
+
+	//Toggle the visibility of the debug UI 
+	if win.JustPressed(pixelgl.KeyU) {
+		render.ToggleUI()
+	}
+	
 
 	//Keys
 	//Moving Height cutoff

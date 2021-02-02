@@ -2,7 +2,7 @@ package render
 
 import (
 	"fmt"
-	"time"
+	_"time"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
@@ -36,7 +36,7 @@ var changes = []bool{true,true,true,true,true,true,true,true,true}
 
 //Render Everything
 func Render(win *pixelgl.Window, WorldMap []*[][][]int, w,h int){
-	drawStart:=time.Now()
+
 
 	//Calculate camera positioning and UI positioning
 	cam := pixel.IM.Scaled(camPos, camZoom).Moved(pixel.ZV.Sub(camPos))
@@ -51,12 +51,11 @@ func Render(win *pixelgl.Window, WorldMap []*[][][]int, w,h int){
 	//Render UI
 	RenderUI(win)
 
-	//Timing things
-	drawDt := time.Since(drawStart).Seconds()
-	SendString(fmt.Sprintf("Render Time(ms): %f\n",1000*drawDt/60.0))
+
 }
 
 func RenderWorld(win *pixelgl.Window, Chunks []*[][][]int , w,h int){
+	//last := time.Now()
 	//len of chunks should be 9. 3x3 grid
 	x:=0
 	y:=0
@@ -66,6 +65,8 @@ func RenderWorld(win *pixelgl.Window, Chunks []*[][][]int , w,h int){
 		
 		RenderChunk(win, Chunks, &changes[c], w,h,x,y, c)
 	}
+
+	
 }
 
 func RenderChunk(win *pixelgl.Window, WorldMaps []*[][][]int , changed *bool, w,h,chunkX,chunkY, ChunkIndex int) {
@@ -167,10 +168,11 @@ func CheckVisibility(x, y, yp, z, w, h, d, z_cutoff, ChunkIndex int, ChunkMaps [
 			exposedToOtherChunkAir=(*ChunkMaps[ChunkIndex+3])[z][0][x] == 0
 		}
 		//Check x further right
-		if ChunkIndex%3 <2{ //It is not the furthest right
-			//Check the next chunk ath the first one at the same x and y
-			exposedToOtherChunkAir = exposedToOtherChunkAir || (*ChunkMaps[ChunkIndex+1])[z][yp][0] == 0
-		}
+		//if ChunkIndex%3 <2{ //It is not the furthest right
+		//	//Check the next chunk ath the first one at the same x and y
+		//	exposedToOtherChunkAir = exposedToOtherChunkAir || (*ChunkMaps[ChunkIndex+1])[z][yp][0] == 0
+		//	exposedToOtherChunkAir=true
+		//}
 		
 	}
 	
