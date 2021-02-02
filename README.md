@@ -8,10 +8,10 @@ I realized I needed a way to visually see what was happening to make things easi
 
 
 ## Features
-[x] Isometric rendering of the world
-[ ] Correct Sprite and animation rendering
-[ ] Easy sound interface
-[ ] Actual Simulation elements
+- [x] Isometric rendering of the world
+- [ ] Correct Sprite and animation rendering
+- [ ] Easy sound interface
+- [ ] Actual Simulation elements
 
 ## Dependencies
 https://github.com/faiface/pixel
