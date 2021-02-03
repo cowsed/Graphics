@@ -16,6 +16,10 @@ import (
 	_ "os"
 )
 
+//NumChunks defines the number of chunks visible at once
+const NumChunks=25
+const chunksDimension=5
+
 //VoidColor defines the color of the background
 var VoidColor color.RGBA = colornames.Skyblue
 
@@ -29,7 +33,7 @@ var TileBatches []*pixel.Batch //Set of Sprites
 
 var SpritesToDraw []map[string]*ActorRenderer
 
-var changes = []bool{true,true,true,true,true,true,true,true,true}
+var changes = [NumChunks]bool{true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true}
 //var mapUpdated = true
 
 
@@ -59,9 +63,9 @@ func RenderWorld(win *pixelgl.Window, Chunks []*[][][]int , w,h int){
 	//len of chunks should be 9. 3x3 grid
 	x:=0
 	y:=0
-	for c:=0; c<9; c++{
-		y=3-c/3
-		x=c%3
+	for c:=0; c<NumChunks; c++{
+		y=chunksDimension-c/chunksDimension
+		x=c%chunksDimension
 		
 		RenderChunk(win, Chunks, &changes[c], w,h,x,y, c)
 	}
@@ -148,8 +152,8 @@ func RenderChunk(win *pixelgl.Window, WorldMaps []*[][][]int , changed *bool, w,
 func CheckVisibility(x, y, yp, z, w, h, d, z_cutoff, ChunkIndex int, ChunkMaps []*[][][]int) (bool,bool) {
 	onFrontFace := (x == w-1) || (y == 0) || (z == d-z_cutoff-1)
 	
-	onFullXFace:=(ChunkIndex/3==2) && y==0
-	onFullYFace:=(ChunkIndex%3==2) && x==w-1
+	onFullXFace:=(ChunkIndex/chunksDimension==chunksDimension-1) && y==0
+	onFullYFace:=(ChunkIndex%chunksDimension==chunksDimension-1) && x==w-1
 	onFullXYFace:=onFullXFace||onFullYFace
 	
 	onXYFace := ((x == w-1) || (y == 0))
@@ -159,24 +163,26 @@ func CheckVisibility(x, y, yp, z, w, h, d, z_cutoff, ChunkIndex int, ChunkMaps [
 		exposed = (*ChunkMaps[ChunkIndex])[z+1][yp][x] == 0
 	}
 	inside:=!exposed
-	var exposedToOtherChunkAir bool
+	var exposedToOtherChunkAirY bool
+	var exposedToOtherChunkAirX bool
+	
 	if inside && onXYFace{ //If it is on a side visible to the player and is considered inside based off of first look up
 		//Check if its actually inside based in look into other chunks
 		//Check further y forward
-		if ChunkIndex/3 <2{ //It is not the last one
+		if ChunkIndex/chunksDimension <chunksDimension-1{ //It is not the last one
 			//Check the next chunk at the first one at the same x and z
-			exposedToOtherChunkAir=(*ChunkMaps[ChunkIndex+3])[z][0][x] == 0
+			exposedToOtherChunkAirY=(*ChunkMaps[ChunkIndex+chunksDimension])[z][0][x] == 0
 		}
 		//Check x further right
-		//if ChunkIndex%3 <2{ //It is not the furthest right
-		//	//Check the next chunk ath the first one at the same x and y
-		//	exposedToOtherChunkAir = exposedToOtherChunkAir || (*ChunkMaps[ChunkIndex+1])[z][yp][0] == 0
+		if ChunkIndex%chunksDimension <chunksDimension-1{ //It is not the furthest right
+		//	//Check the next chunk ath the first one at the same y and z
+			exposedToOtherChunkAirX =  (*ChunkMaps[ChunkIndex+1])[z][yp][0] == 0
 		//	exposedToOtherChunkAir=true
-		//}
+		}
 		
 	}
-	
-	return onFrontFace || exposed,  !onFullXYFace && !(exposed||exposedToOtherChunkAir) 
+
+	return onFrontFace || exposed, !onFullXYFace && !(exposed||exposedToOtherChunkAirY||exposedToOtherChunkAirX)
 }
 
 func InitRender() {
@@ -184,9 +190,9 @@ func InitRender() {
 	fmt.Println("Loaded Environment")
 	
 	//Create the batches and the sprite maps
-	SpritesToDraw = make([]map[string]*ActorRenderer, 9)
-	TileBatches=make([]*pixel.Batch,9)
-	for i:=0; i<9; i++{
+	SpritesToDraw = make([]map[string]*ActorRenderer, NumChunks)
+	TileBatches=make([]*pixel.Batch,NumChunks)
+	for i:=0; i<NumChunks; i++{
 		SpritesToDraw[i] = make(map[string]*ActorRenderer)
 		TileBatches[i] = pixel.NewBatch(&pixel.TrianglesData{}, spriteSheet)
 	}

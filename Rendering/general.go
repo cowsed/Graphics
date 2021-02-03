@@ -17,7 +17,7 @@ func SetChanged(change bool, index int) {
 	changes[index] = change
 }
 func SetAllChanged(val bool){
-	for i:=0; i<9; i++{
+	for i:=0; i<NumChunks; i++{
 		SetChanged(val, i)
 	}
 }

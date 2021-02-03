@@ -12,11 +12,11 @@ import (
 	"time"
 )
 const(
-    //WorldWidth is the size of the world (x)
-    WorldWidth int =32
-     //WorldHeight is the height of generated world (y)
-    WorldHeight int =32
-    //WorldDepth is the depth of generated world z
+    //WorldWidth is the size of a chunk(x)
+    WorldWidth int =16
+     //WorldHeight is the height of a chunk (y)
+    WorldHeight int =16
+    //WorldDepth is the depth of a chunk (z)
     WorldDepth int = 16
 
 
@@ -74,8 +74,10 @@ func run() {
 		last := time.Now() //For FPS Calculations
 		
 		//Testing
-		//render.SetAllChanged(true)
-
+		render.SendString(fmt.Sprintf("Debug Boolean: %t\n",DBBool))
+		if DBBool{
+			render.SetChanged(true,0)
+		}
 		//Input Handling
 		inputLast:=time.Now()
 		handleInput(win)
@@ -98,13 +100,13 @@ func run() {
 		render.Render(win, WorldMap,WorldWidth,WorldHeight)
 		//Timing things
 		drawDt := time.Since(drawStart).Seconds()
-		render.SendString(fmt.Sprintf("Render Time(ms): %f\n",1000*drawDt))
+		render.SendString(fmt.Sprintf("Batching Time(ms): %f\n",1000*drawDt))
 
 		upTime:=time.Now() 
 		//Update Window
 		win.Update()
 		upTimeEnd:=time.Since(upTime).Seconds()
-		render.SendString(fmt.Sprintf("Update Time(ms): %f\n", upTimeEnd*1000))
+		render.SendString(fmt.Sprintf("Window Update Time(ms): %f\n", upTimeEnd*1000))
 	
 		//Fps calculations
 		dt := time.Since(last).Seconds()
@@ -122,7 +124,7 @@ func main() {
 
 	//This is a really hacky way to create a 3x3 grid cuz the generator isnt there yet
 	chunk:= GenMap2(WorldWidth, WorldHeight, WorldDepth)
-	WorldMap=[]*[][][]int{&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk}
+	WorldMap=[]*[][][]int{&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk,&chunk}
 	//Begin
 	pixelgl.Run(run)
 }
