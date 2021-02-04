@@ -27,7 +27,7 @@ var sheetFrames []pixel.Rect
 
 var TileBatches []*pixel.Batch //Set of Sprites
 
-var SpritesToDraw []map[string]*ActorRenderer
+//var SpritesToDraw []map[string]*ActorRenderer
 
 //Sprite used for the selection cursor
 var SelectSprite *pixel.Sprite
@@ -35,10 +35,10 @@ var SelectSprite *pixel.Sprite
 var ChunkReference *[]Chunk
 
 //Render Everything
-func Render(win *pixelgl.Window, w, h,d int) {
+func Render(win *pixelgl.Window, w, h, d int) {
 
 	//Show Height Cutoff
-	SendString(fmt.Sprintf("Height Cutoff: %d\n", d-heightCutoff))
+	SendString(fmt.Sprintf("Height Cutoff: %d\n", heightCutoff))
 
 	//Calculate camera positioning and UI positioning
 	cam := pixel.IM.Scaled(camPos.Add(win.Bounds().Center()), camZoom).Moved(pixel.ZV.Sub(camPos))
@@ -47,10 +47,9 @@ func Render(win *pixelgl.Window, w, h,d int) {
 
 	//Clear the Window to prepare for drawing
 	win.Clear(VoidColor)
-	worldStart:=time.Now()
-	RenderWorld(win, w, h,d)
-	SendString(fmt.Sprintf("World Render Time(ms): %d\n",time.Since(worldStart).Milliseconds()))
-
+	worldStart := time.Now()
+	RenderWorld(win, w, h, d)
+	SendString(fmt.Sprintf("World Render Time(ms): %d\n", time.Since(worldStart).Milliseconds()))
 
 	//Render Selectioncursor DB
 	//cursorStart:=time.Now()
@@ -58,7 +57,6 @@ func Render(win *pixelgl.Window, w, h,d int) {
 	//mx := pixel.IM.Moved(worldToIsoCoords(x, y, 0))
 	//SelectSprite.Draw(win, mx)
 	//SendString(fmt.Sprintf("Cursor Time(ms): %d\n",time.Since(cursorStart).Milliseconds()))
-
 
 	//lineStart:=time.Now()
 	//DrawLines(32, 32, 0, win)
@@ -69,7 +67,7 @@ func Render(win *pixelgl.Window, w, h,d int) {
 
 }
 
-func RenderWorld(win *pixelgl.Window,  w, h,d int) {
+func RenderWorld(win *pixelgl.Window, w, h, d int) {
 	//last := time.Now()
 	//len of chunks should be 9. 3x3 grid
 	x := 0
@@ -78,26 +76,28 @@ func RenderWorld(win *pixelgl.Window,  w, h,d int) {
 		y = chunksDimension - c/chunksDimension
 		x = c % chunksDimension
 
-		RenderChunk(win, w, h,d, x, y, c)
+		RenderChunk(win, w, h, d, x, y, c)
 	}
 
 }
 
-func RenderChunk(win *pixelgl.Window, w, h,d, chunkX, chunkY, ChunkIndex int) {
+func RenderChunk(win *pixelgl.Window, w, h, d, chunkX, chunkY, ChunkIndex int) {
 	//Trackers
 	spritesDrawn := 0
 	tilesDrawn := 0
 	//Create Chunk Map
 	ChunkMap := (*ChunkReference)[ChunkIndex]
-	//Dimensions of the world map
+
+	//fmt.Println((ChunkMap))
 
 	if ChunkMap.GetChanged() { //Reset Batch
 
 		TileBatches[ChunkIndex].Clear()
 
-		for z := 0; z < ChunkMap.MaxHeight-heightCutoff; z++ {
+		for z := 0; z < intMin(ChunkMap.MaxHeight, d-heightCutoff); z++ {
+			//fmt.Println("Z: ",(*ChunkReference)[ChunkIndex])
 			for y := h - 1; y >= 0; y-- { //Go backwards to go over each other
-				//yp := h - y - 1 //needs to be reversed because of orientation
+
 				for x := 0; x < w; x++ {
 
 					if visible, inside := CheckVisibility(x, y, z, w, h, d, heightCutoff, ChunkIndex); visible {
@@ -107,11 +107,13 @@ func RenderChunk(win *pixelgl.Window, w, h,d, chunkX, chunkY, ChunkIndex int) {
 						}
 						//Render Sprites (This is sort of a bad idea because it takes a map which is unfun to allocate)
 						//But may be better than searching through the list of
-						key := string(x) + "" + string(y) + "," + string(z)
-						if sprite, ok := SpritesToDraw[ChunkIndex][key]; ok { //Check if there is a Sprite here
+						key := [3]int{x, y, z}
+
+						if sprite, ok := (*(*ChunkReference)[ChunkIndex].SpriteData)[key]; ok { //Check if there is a Sprite here
 							//Render the sprite
 							var spriteIndex int
 
+							//This switching should really
 							if (*sprite).Visible {
 								spriteIndex = (*sprite).FrameIndex
 							} else {
@@ -193,12 +195,12 @@ func InitRender() {
 	fmt.Println("Loaded Environment")
 
 	//Create the batches and the sprite maps
-	SpritesToDraw = make([]map[string]*ActorRenderer, NumChunks)
+
 	TileBatches = make([]*pixel.Batch, NumChunks)
 	for i := 0; i < NumChunks; i++ {
-		SpritesToDraw[i] = make(map[string]*ActorRenderer)
 		TileBatches[i] = pixel.NewBatch(&pixel.TrianglesData{}, spriteSheet)
+		//Update all chunks to their correct heights
 	}
-	
+
 	SelectSprite = pixel.NewSprite(spriteSheet, sheetFrames[159])
 }

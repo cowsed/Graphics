@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/pkg/profile"
+	_ "github.com/pkg/profile"
 
 	"time"
 )
@@ -21,8 +21,9 @@ const (
 )
 
 //Globals
-//Controls whether or not to vsync
-var DoVSync bool = false
+
+//DoVSync controls whether or not to vsync
+var DoVSync bool = true
 
 //WorldMap holds the world grid that holds the world (may soon be changed to a more memory friendly version
 var WorldMap []render.Chunk
@@ -31,6 +32,7 @@ var WorldMap []render.Chunk
 
 //DBBool is a boolean controlled by keys to test random features
 var DBBool bool = false
+
 //DBBoolLast is the last state of DBBool to get the rising edge of a change
 var DBBoolLast bool = true
 
@@ -46,19 +48,6 @@ func run() {
 	if err != nil {
 		panic(err)
 	}
-
-	//Add test sprite to test sprite rendering
-	personRenderer := &render.ActorRenderer{Sheet: nil, FrameIndex: 120, ChunkX: 0, ChunkY: 0}
-	person := people.Person{Name: "Timothy", X: 0, Y: 0, Z: 12, Renderer: personRenderer}
-	person.UpdateRenderAll(true)
-	personRenderer.AddSprite("")
-	fmt.Println(person)
-
-	personRenderer2 := &render.ActorRenderer{Sheet: nil, FrameIndex: 87, ChunkX: 0, ChunkY: 1}
-	person2 := people.Person{Name: "Timothy2", X: 0, Y: 0, Z: 12, Renderer: personRenderer2}
-	person2.UpdateRenderAll(true)
-	personRenderer2.AddSprite("")
-	fmt.Println(person)
 
 	//Main Loop
 	for !win.Closed() {
@@ -88,7 +77,7 @@ func run() {
 		render.SendString(fmt.Sprintf("Vsync: %t\n", DoVSync))
 		//Render the world
 		drawStart := time.Now()
-		render.Render(win, WorldWidth, WorldHeight,WorldDepth)
+		render.Render(win, WorldWidth, WorldHeight, WorldDepth)
 		//Timing things
 		drawDt := time.Since(drawStart).Seconds()
 		render.SendString(fmt.Sprintf("Full Self Render Time(ms): %.2f\n", 1000*drawDt))
@@ -109,22 +98,38 @@ func run() {
 }
 
 func main() {
-	defer profile.Start().Stop()
+	//defer profile.Start().Stop()
+
+	//Load Renderer
+	render.InitRender()
 
 	chunkData := GenMap2(WorldWidth, WorldHeight, WorldDepth)
 	//Make the World. RN a bit hacky (very hacky)
-	for i:=0; i<25; i++{
-		fmt.Println("Making chunks")
-		chunk:=render.Chunk{ MaxHeight: WorldDepth, WorldData: &chunkData,  W: WorldWidth,H: WorldHeight,D: WorldDepth}		
+	for i := 0; i < 25; i++ {
+		//fmt.Println("Making chunks")
+		SpriteData := make(map[[3]int]*render.ActorRenderer)
+		chunk := render.Chunk{MaxHeight: WorldDepth, WorldData: &chunkData, SpriteData: &SpriteData, W: WorldWidth, H: WorldHeight, D: WorldDepth}
 		chunk.CalculateMax()
-		WorldMap =append(WorldMap,chunk)
+
+		WorldMap = append(WorldMap, chunk)
 	}
+
 	//RN this is off because really the renderer should have the chunks but since rn the chuinkmap and the world map are the smae this is what were stuck with
-	render.ChunkReference=&WorldMap
+	render.ChunkReference = &WorldMap
 	render.SetAllChanged(true)
-	
-	//Load Renderer
-	render.InitRender()
-	
+
+	//Add test sprite to test sprite rendering
+	personRenderer := &render.ActorRenderer{Sheet: nil, FrameIndex: 120, ChunkX: 0, ChunkY: 0}
+	person := people.Person{Name: "Timothy", X: 0, Y: 1, Z: 12, Renderer: personRenderer}
+	person.UpdateRenderAll(true)
+	personRenderer.AddSprite(nil)
+	fmt.Println(person)
+
+	personRenderer2 := &render.ActorRenderer{Sheet: nil, FrameIndex: 87, ChunkX: 0, ChunkY: 1}
+	person2 := people.Person{Name: "Timothy2", X: 0, Y: 0, Z: 12, Renderer: personRenderer2}
+	person2.UpdateRenderAll(true)
+	personRenderer2.AddSprite(nil) //Adding sprite and making it calculate its position
+	fmt.Println(person)
+
 	pixelgl.Run(run)
 }

@@ -14,7 +14,7 @@ var (
 	camZoom      = 1.0
 	camZoomSpeed = 1.2
 
-	heightCutoff = 0
+	heightCutoff = 140
 )
 
 //Set the camera zoom

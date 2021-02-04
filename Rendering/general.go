@@ -2,7 +2,6 @@ package render
 
 import (
 	"fmt"
-	"time"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
@@ -12,6 +11,7 @@ import (
 	_ "image/png"
 	_ "math"
 	"os"
+	"time"
 )
 
 //Calculates the position in the 2d image world that is where the mouse is (2d because this does not yet get world position)
@@ -26,7 +26,7 @@ func SetChanged(change bool, index int) {
 }
 
 //Tells the renderer everything has changed
-func SetAllChanged(val bool	) {
+func SetAllChanged(val bool) {
 	for i := 0; i < NumChunks; i++ {
 		SetChanged(val, i)
 	}
@@ -113,13 +113,24 @@ func isoToWorldCoords(v pixel.Vec) (int, int) {
 		16x=16y-y'
 
 	*/
-	isoConversionTime:=time.Now()
+	isoConversionTime := time.Now()
 	y := ((v.X + (2.0 * v.Y)) / 64)
 	x := ((16.0*float64(y) - v.Y) / 16.0) + 1 //+1 to make things work or maybe not work but thats what it looks like
 	//This messes up when it gets to the -x or -y gets off by 1
-	if y<0{y--}
-	if x<0{x--}
+	if y < 0 {
+		y--
+	}
+	if x < 0 {
+		x--
+	}
 
-	SendString(fmt.Sprintf("Iso Conversion Time(ms): %f\n",time.Since(isoConversionTime).Seconds()*1000))
+	SendString(fmt.Sprintf("Iso Conversion Time(ms): %f\n", time.Since(isoConversionTime).Seconds()*1000))
 	return int(x), int(y)
+}
+
+func intMin(a, b int) int {
+	if a <= b {
+		return a
+	}
+	return b
 }

@@ -1,7 +1,7 @@
 package render
 
 import (
-	_ "fmt"
+	//"fmt"
 	//"math/rand"
 	"github.com/faiface/pixel"
 	_ "github.com/faiface/pixel/imdraw"
@@ -21,8 +21,8 @@ type ActorRenderer struct {
 	Visible        bool
 }
 
-func (a ActorRenderer) makeKey() string {
-	return string(int(a.X)) + "" + string(int(a.Y)) + "," + string(int(a.Z))
+func (a ActorRenderer) makeKey() *[3]int {
+	return &[3]int{a.X, a.Y, a.Z}
 }
 func (a ActorRenderer) makeChunkIndex() int {
 	return a.ChunkX + a.ChunkY*chunksDimension
@@ -30,36 +30,39 @@ func (a ActorRenderer) makeChunkIndex() int {
 
 //Add Sprite adds the sprite to the pool of sprites to be included in the batch
 //Key us an arguement because if the position changes the key changes so updating it doesnt work
-func (a ActorRenderer) AddSprite(key string) {
+func (a ActorRenderer) AddSprite(key *[3]int) {
 	//Add the current sprite to the pool to be rendered
 	//Blank key if calling externally
-	if key == "" {
+	if key == nil {
 		key = a.makeKey()
 	}
 	//Create chunk index
 	ci := a.makeChunkIndex()
-	SpritesToDraw[ci][key] = &a
+	//Make a separate map for sprites to draw for each chunk.
+	(*(*ChunkReference)[ci].SpriteData)[*key] = &a
+	(*ChunkReference)[ci].CalculateMax()
 
 	SetChanged(true, ci)
 }
 
 //Remove the sprite from the pool
-func (a ActorRenderer) RemoveSprite(key string) {
+func (a ActorRenderer) RemoveSprite(key *[3]int) {
 	//Blank key if calling externally
-	if key == "" {
+	if key == nil {
 		key = a.makeKey()
 	}
 	//Create chunk index
 	ci := a.makeChunkIndex()
 
-	delete(SpritesToDraw[ci], key)
+	delete((*(*ChunkReference)[ci].SpriteData), *key)
+
 	SetChanged(true, ci)
 }
 
 func (a *ActorRenderer) UpdateVisibility(visible bool) {
 	a.Visible = visible
-	a.RemoveSprite("")
-	a.AddSprite("")
+	a.RemoveSprite(nil)
+	a.AddSprite(nil)
 }
 
 func (a *ActorRenderer) UpdatePos(x, y, z int) {

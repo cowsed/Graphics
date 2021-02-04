@@ -2,7 +2,6 @@ package render
 
 import (
 	"fmt"
-	"time"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
@@ -11,6 +10,7 @@ import (
 	"golang.org/x/image/font/basicfont"
 	"image/color"
 	"math"
+	"time"
 )
 
 var basicAtlas = text.NewAtlas(basicfont.Face7x13, text.ASCII)
@@ -29,15 +29,13 @@ func RenderUI(win *pixelgl.Window) {
 
 	//Shows the DB calc of game space
 	SendString(CalculateGamePosition(win, win.MousePosition()).String() + "\n")
-	
-	gpStart:=time.Now()
-	gp:=CalculateGamePosition(win, win.MousePosition())
-	SendString(fmt.Sprintf("CalcMousePosition(ms): %f\n", time.Since(gpStart).Seconds()*1000))
 
+	gpStart := time.Now()
+	gp := CalculateGamePosition(win, win.MousePosition())
+	SendString(fmt.Sprintf("CalcMousePosition(ms): %f\n", time.Since(gpStart).Seconds()*1000))
 
 	isox, isoy := isoToWorldCoords(gp)
 	SendString(fmt.Sprintf("In World (Base): (%d,%d)\n", isox, isoy))
-
 
 	//Setup for things used later
 	Bounds := win.Bounds()
