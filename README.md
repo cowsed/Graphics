@@ -31,3 +31,4 @@ https://github.com/faiface/pixel
 - u - toggle Debug UI
 - v - toggle VSync
 - esc - quit
+- / Take a Screenshot (saved to Screenshots/)
