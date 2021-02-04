@@ -5,6 +5,7 @@ import "fmt"
 import "math"
 import "math/rand"
 import "./Materials"
+
 /*
 func MakeFlags(w int, h int, x int, y int, m [][]int) string {
 	flag := []bool{true, true, true, true, true, true, true, true, true} //representative of if its safe to check
@@ -160,40 +161,42 @@ func GenMap3() [][][]int {
 	}
 }
 */
-func landFunc(x,y int) int {
-//	freq := .5
+func landFunc(x, y int) int {
+	//	freq := .5
 	//z=f(x,y)
 
-	r:=math.Sqrt(float64((x-64)*(x-64))+float64((y-64)*(y-64)))/30
-	t:=math.Atan2(float64(x)-64,float64(y)-64)
-	f:=math.Cos(t*6)
+	r := math.Sqrt(float64((x-64)*(x-64))+float64((y-64)*(y-64))) / 30
+	t := math.Atan2(float64(x)-64, float64(y)-64)
+	f := math.Cos(t * 6)
 
-	v:=0.0
-	if f-r<4{v=f-r}
-	
-	return  10+int(v)
-	
+	v := 0.0
+	if f-r < 4 {
+		v = f - r
+	}
+
+	return 10 + int(v)
+
 	//30+int(10*math.Sin(r*.3))//int(61+2*math.Sin(float64(x)*freq)*math.Sin(float64(y)*freq))
 }
-func landFuncG(x,y int) int {
-	return 7+2*y-3*x
+func landFuncG(x, y int) int {
+	return 7 + 2*y - 3*x
 }
+
 //GenMap2 generates a 3d world of the form z=f(x,y) approx where f is landFunc()
 func GenMap2(w, h, d int) [][][]int {
 
-
-	world := make([][][]int,0,d)
+	world := make([][][]int, 0, d)
 
 	for z := 0; z < d; z++ {
-		floor := make([][]int, 0,h)
+		floor := make([][]int, 0, h)
 
 		for y := 0; y < h; y++ {
-			row := make([]int, 0,w)
+			row := make([]int, 0, w)
 			for x := 0; x < w; x++ {
-				block := materials.ROCK_BLOCK_1+ rand.Intn(2)
-				if z > landFunc(x,y){
+				block := materials.ROCK_BLOCK_1 + rand.Intn(2)
+				if z > landFunc(x, y) {
 					block = 0
-				} else if z == landFunc(x,y) {
+				} else if z == landFunc(x, y) {
 					block = materials.HILL_C
 				} else if z == 0 {
 					block = materials.ROCK_BLOCK_1 + rand.Intn(2)

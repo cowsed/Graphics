@@ -1,31 +1,30 @@
 package people
 
-import _"fmt"
+import _ "fmt"
 import "../Rendering"
 
-type Person struct{
-	Name string
-	X,Y,Z int
+type Person struct {
+	Name     string
+	X, Y, Z  int
 	Renderer *render.ActorRenderer
 }
 
+func (p Person) UpdateRenderAll(enabled bool) { //, sprite offsett
 
-func (p Person) UpdateRenderAll(enabled bool){ //, sprite offsett
+	(p.Renderer).UpdatePos(p.X, p.Y, p.Z)
 
-        (p.Renderer).UpdatePos(p.X,p.Y,p.Z)
-
-		//Something weird is happening where passing enabled doesnt update it but just saying false does
-    	(*p.Renderer).UpdateVisibility(enabled)
+	//Something weird is happening where passing enabled doesnt update it but just saying false does
+	(*p.Renderer).UpdateVisibility(enabled)
 }
 
 //Updates the rendered position to be equal to the persons position
-func (p Person) UpdateRenderPos(){ //, sprite offsett
-        p.Renderer.UpdatePos(p.X,p.Y,p.Z)
+func (p Person) UpdateRenderPos() { //, sprite offsett
+	p.Renderer.UpdatePos(p.X, p.Y, p.Z)
 }
 
-func (p Person) UpdateVisibility(visible bool){
+func (p Person) UpdateVisibility(visible bool) {
 	//fmt.Println("To: ",visible)
-    (p.Renderer).UpdateVisibility(visible)
+	(p.Renderer).UpdateVisibility(visible)
 	//fmt.Println("Outcome: ",(*p.Renderer))
 
 }

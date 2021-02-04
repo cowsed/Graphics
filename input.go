@@ -1,11 +1,10 @@
 package main
 
-import(
-	"fmt"
+import (
 	"./Rendering"
-	_"github.com/faiface/pixel"
+	"fmt"
+	_ "github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-
 )
 
 func handleInput(win *pixelgl.Window) {
@@ -22,20 +21,19 @@ func handleInput(win *pixelgl.Window) {
 	render.CameraZoom(win.MouseScroll().Y)
 
 	if win.JustPressed(pixelgl.KeyP) {
-		DBBool=!DBBool
-		fmt.Println("change",DBBool)
+		DBBool = !DBBool
+		fmt.Println("change", DBBool)
 	}
 	//Toggle VSync
 	if win.JustPressed(pixelgl.KeyV) {
-		DoVSync=!DoVSync
+		DoVSync = !DoVSync
 		win.SetVSync(DoVSync)
 	}
 
-	//Toggle the visibility of the debug UI 
+	//Toggle the visibility of the debug UI
 	if win.JustPressed(pixelgl.KeyU) {
 		render.ToggleUI()
 	}
-	
 
 	//Keys
 	//Moving Height cutoff

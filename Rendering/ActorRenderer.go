@@ -1,7 +1,7 @@
 package render
 
 import (
-	 _"fmt"
+	_ "fmt"
 	//"math/rand"
 	"github.com/faiface/pixel"
 	_ "github.com/faiface/pixel/imdraw"
@@ -14,17 +14,18 @@ import (
 
 //This pattern was stolen from a book
 type ActorRenderer struct {
-	Sheet      *pixel.Picture
-	FrameIndex int
+	Sheet          *pixel.Picture
+	FrameIndex     int
 	ChunkX, ChunkY int
-	X,Y,Z int
-	Visible bool
+	X, Y, Z        int
+	Visible        bool
 }
+
 func (a ActorRenderer) makeKey() string {
 	return string(int(a.X)) + "" + string(int(a.Y)) + "," + string(int(a.Z))
 }
 func (a ActorRenderer) makeChunkIndex() int {
-	return a.ChunkX+a.ChunkY*3
+	return a.ChunkX + a.ChunkY*chunksDimension
 }
 
 //Add Sprite adds the sprite to the pool of sprites to be included in the batch
@@ -32,40 +33,40 @@ func (a ActorRenderer) makeChunkIndex() int {
 func (a ActorRenderer) AddSprite(key string) {
 	//Add the current sprite to the pool to be rendered
 	//Blank key if calling externally
-	if key==""{
-		key=a.makeKey()
+	if key == "" {
+		key = a.makeKey()
 	}
 	//Create chunk index
-	ci:=a.makeChunkIndex()
+	ci := a.makeChunkIndex()
 	SpritesToDraw[ci][key] = &a
 
-	SetChanged(true,ci)
+	SetChanged(true, ci)
 }
 
 //Remove the sprite from the pool
-func (a ActorRenderer) RemoveSprite(key string){
+func (a ActorRenderer) RemoveSprite(key string) {
 	//Blank key if calling externally
-	if key==""{
-		key=a.makeKey()
+	if key == "" {
+		key = a.makeKey()
 	}
 	//Create chunk index
-	ci:=a.makeChunkIndex()
+	ci := a.makeChunkIndex()
 
-	delete(SpritesToDraw[ci],key)
-	SetChanged(true,ci)
+	delete(SpritesToDraw[ci], key)
+	SetChanged(true, ci)
 }
 
-func (a *ActorRenderer) UpdateVisibility( visible bool){
-	a.Visible=visible
+func (a *ActorRenderer) UpdateVisibility(visible bool) {
+	a.Visible = visible
 	a.RemoveSprite("")
 	a.AddSprite("")
 }
 
-func (a *ActorRenderer) UpdatePos(x,y,z int){
-	oldKey:=a.makeKey()
-	a.X=x
-	a.Y=y
-	a.Z=z
+func (a *ActorRenderer) UpdatePos(x, y, z int) {
+	oldKey := a.makeKey()
+	a.X = x
+	a.Y = y
+	a.Z = z
 	a.RemoveSprite(oldKey)
-	a.AddSprite( a.makeKey() )
+	a.AddSprite(a.makeKey())
 }
