@@ -3,7 +3,10 @@ package main
 import (
 	"./Rendering"
 	"fmt"
-	_ "github.com/faiface/pixel"
+	"os"
+	"time"
+	"image/png"
+	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 )
 
@@ -43,6 +46,23 @@ func handleInput(win *pixelgl.Window) {
 	if win.JustPressed(pixelgl.KeyMinus) {
 		render.DecHeightCutoff(WorldDepth)
 	}
+
+
+	if win.JustPressed(pixelgl.KeySlash){
+		fmt.Println("TakingScreenshot")
+		fmt.Println("taking screenshot...")
+
+		f, err := os.Create(fmt.Sprint("Screenshots/Screenshot-",time.Now()))
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+		img := pixel.PictureDataFromPicture(win)
+		png.Encode(f, img.Image())
+
+		fmt.Println("done")
+	}
+
 
 	//Quitting the game
 	if win.Pressed(pixelgl.KeyEscape) {

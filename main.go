@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/pkg/profile"
 
 	"time"
 )
@@ -21,7 +22,7 @@ const (
 
 //Globals
 //Controls whether or not to vsync
-var DoVSync bool = true
+var DoVSync bool = false
 
 //WorldMap holds the world grid that holds the world (may soon be changed to a more memory friendly version
 var WorldMap []render.Chunk
@@ -108,13 +109,14 @@ func run() {
 }
 
 func main() {
+	defer profile.Start().Stop()
 
 	chunkData := GenMap2(WorldWidth, WorldHeight, WorldDepth)
 	//Make the World. RN a bit hacky (very hacky)
 	for i:=0; i<25; i++{
 		fmt.Println("Making chunks")
 		chunk:=render.Chunk{ MaxHeight: WorldDepth, WorldData: &chunkData,  W: WorldWidth,H: WorldHeight,D: WorldDepth}		
-		//chunk.CalculateMax()
+		chunk.CalculateMax()
 		WorldMap =append(WorldMap,chunk)
 	}
 	//RN this is off because really the renderer should have the chunks but since rn the chuinkmap and the world map are the smae this is what were stuck with

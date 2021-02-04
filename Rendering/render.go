@@ -53,11 +53,11 @@ func Render(win *pixelgl.Window, w, h,d int) {
 
 
 	//Render Selectioncursor DB
-	cursorStart:=time.Now()
-	x, y := isoToWorldCoords(CalculateGamePosition(win, win.MousePosition()))
-	mx := pixel.IM.Moved(worldToIsoCoords(x, y, 0))
-	SelectSprite.Draw(win, mx)
-	SendString(fmt.Sprintf("Cursor Time(ms): %d\n",time.Since(cursorStart).Milliseconds()))
+	//cursorStart:=time.Now()
+	//x, y := isoToWorldCoords(CalculateGamePosition(win, win.MousePosition()))
+	//mx := pixel.IM.Moved(worldToIsoCoords(x, y, 0))
+	//SelectSprite.Draw(win, mx)
+	//SendString(fmt.Sprintf("Cursor Time(ms): %d\n",time.Since(cursorStart).Milliseconds()))
 
 
 	//lineStart:=time.Now()
