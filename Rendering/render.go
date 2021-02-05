@@ -21,7 +21,7 @@ const chunksDimension = 5
 var VoidColor color.RGBA = colornames.Skyblue
 
 //Stuff for sprites
-//tiles
+//tile dimensions. should probably always be the same
 const TileWidth=64
 const TileHeight=64
 
@@ -76,94 +76,14 @@ func RenderWorld(win *pixelgl.Window, w, h, d int) {
 	for c := 0; c < NumChunks; c++ {
 		y = chunksDimension - c/chunksDimension
 		x = c % chunksDimension
-		//(*ChunkReference)[c].SetDirty(true)
-		//This will only update if necessary - cool huh
-		//(*ChunkReference)[c].SetChanged(true)
-		(*ChunkReference)[c].UpdateTiles(c,heightCutoff)
+		//This will only update if it's been marked necessary - cool huh
+		(*ChunkReference)[c].UpdateTiles(c,heightCutoff) //Formerly d=heightCut
 		(*ChunkReference)[c].Render(win,x,y)
 		(*ChunkReference)[c].Batch.Draw(win)
-
-		//Old Version
-		//RenderChunk(win, w, h, d, x, y, c)
-		//TileBatches[c].Draw(win) //Draw the batch no matter what
-
 	}
 
 }
 
-func RenderChunk(win *pixelgl.Window, w, h, d, chunkX, chunkY, ChunkIndex int) {
-	//Trackers
-	spritesDrawn := 0
-	tilesDrawn := 0
-	//Create Chunk Map
-	ChunkMap := (*ChunkReference)[ChunkIndex]
-
-	//fmt.Println((ChunkMap))
-
-	if ChunkMap.GetChanged() { //Reset Batch
-
-		TileBatches[ChunkIndex].Clear()
-
-		for z := 0; z < intMin(ChunkMap.MaxHeight, d-heightCutoff); z++ {
-			//fmt.Println("Z: ",(*ChunkReference)[ChunkIndex])
-			for y := h - 1; y >= 0; y-- { //Go backwards to go over each other
-
-				for x := 0; x < w; x++ {
-
-					if visible, inside := CheckVisibility(x, y, z, w, h, d, heightCutoff, ChunkIndex); visible {
-						//if its inside darken it a bit
-						if inside {
-							TileBatches[ChunkIndex].SetColorMask(color.RGBA{60, 60, 60, 255})
-						}
-						//Render Sprites (This is sort of a bad idea because it takes a map which is unfun to allocate)
-						//But may be better than searching through the list of
-						key := [3]int{x, y, z}
-
-						if sprite, ok := (*(*ChunkReference)[ChunkIndex].SpriteData)[key]; ok { //Check if there is a Sprite here
-							//Render the sprite
-							var spriteIndex int
-
-							//This switching should really
-							if (*sprite).Visible {
-								spriteIndex = (*sprite).FrameIndex
-							} else {
-								spriteIndex = 159
-							}
-							mx := pixel.IM.Moved(worldToIsoCoords(x+(chunkX*w), y+(chunkY*h), z)) //Position sprite in space
-							sprite := pixel.NewSprite(spriteSheet, sheetFrames[spriteIndex])
-							sprite.Draw(TileBatches[ChunkIndex], mx)
-							spritesDrawn++
-
-						}
-						//fmt.Println(x+(chunkX*w), y+(chunkY*h))
-						//Render World
-						//Position
-						mx := pixel.IM.Moved(worldToIsoCoords(x+(chunkX*w), y+(chunkY*h), z))
-						//Material Index
-						TileIndex := (*ChunkMap.WorldData)[z][y][x]
-						
-						if TileIndex != 0 {
-							TileIndex-- //Decrement to index
-
-							sprite := pixel.NewSprite(spriteSheet, sheetFrames[TileIndex])
-							sprite.Draw(TileBatches[ChunkIndex], mx)
-							tilesDrawn++
-						}
-						if inside {
-							TileBatches[ChunkIndex].SetColorMask(color.RGBA{255, 255, 255, 255})
-						}
-					}
-
-				}
-			}
-		}
-
-	}
-
-
-	(*ChunkReference)[ChunkIndex].SetChanged(false) //Reset changes
-
-}
 
 func CheckVisibility(x, y, z, w, h, d, z_cutoff, ChunkIndex int) (bool, bool) {
 	onFrontFace := (x == w-1) || (y == 0) || (z == d-z_cutoff-1)
