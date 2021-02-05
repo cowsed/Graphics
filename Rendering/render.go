@@ -6,9 +6,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 	"time"
-
 	"image/color"
-
 	_ "github.com/faiface/pixel/text"
 	_ "image"
 	_ "image/png"
@@ -21,6 +19,11 @@ const chunksDimension = 5
 
 //VoidColor defines the color of the background
 var VoidColor color.RGBA = colornames.Skyblue
+
+//Stuff for sprites
+//tiles
+const TileWidth=64
+const TileHeight=64
 
 var spriteSheet pixel.Picture //maybe load this by stitching together others but for now this
 var sheetFrames []pixel.Rect
@@ -68,15 +71,22 @@ func Render(win *pixelgl.Window, w, h, d int) {
 }
 
 func RenderWorld(win *pixelgl.Window, w, h, d int) {
-	//last := time.Now()
-	//len of chunks should be 9. 3x3 grid
 	x := 0
 	y := 0
 	for c := 0; c < NumChunks; c++ {
 		y = chunksDimension - c/chunksDimension
 		x = c % chunksDimension
+		//(*ChunkReference)[c].SetDirty(true)
+		//This will only update if necessary - cool huh
+		//(*ChunkReference)[c].SetChanged(true)
+		(*ChunkReference)[c].UpdateTiles(c,heightCutoff)
+		(*ChunkReference)[c].Render(win,x,y)
+		(*ChunkReference)[c].Batch.Draw(win)
 
-		RenderChunk(win, w, h, d, x, y, c)
+		//Old Version
+		//RenderChunk(win, w, h, d, x, y, c)
+		//TileBatches[c].Draw(win) //Draw the batch no matter what
+
 	}
 
 }
@@ -101,7 +111,7 @@ func RenderChunk(win *pixelgl.Window, w, h, d, chunkX, chunkY, ChunkIndex int) {
 				for x := 0; x < w; x++ {
 
 					if visible, inside := CheckVisibility(x, y, z, w, h, d, heightCutoff, ChunkIndex); visible {
-						//if its inside darken it ab it
+						//if its inside darken it a bit
 						if inside {
 							TileBatches[ChunkIndex].SetColorMask(color.RGBA{60, 60, 60, 255})
 						}
@@ -131,6 +141,7 @@ func RenderChunk(win *pixelgl.Window, w, h, d, chunkX, chunkY, ChunkIndex int) {
 						mx := pixel.IM.Moved(worldToIsoCoords(x+(chunkX*w), y+(chunkY*h), z))
 						//Material Index
 						TileIndex := (*ChunkMap.WorldData)[z][y][x]
+						
 						if TileIndex != 0 {
 							TileIndex-- //Decrement to index
 
@@ -149,7 +160,6 @@ func RenderChunk(win *pixelgl.Window, w, h, d, chunkX, chunkY, ChunkIndex int) {
 
 	}
 
-	TileBatches[ChunkIndex].Draw(win) //Draw the batch no matter what
 
 	(*ChunkReference)[ChunkIndex].SetChanged(false) //Reset changes
 
@@ -191,7 +201,7 @@ func CheckVisibility(x, y, z, w, h, d, z_cutoff, ChunkIndex int) (bool, bool) {
 }
 
 func InitRender() {
-	spriteSheet, sheetFrames = loadSheet("Assets/outside4.png", 64, 64)
+	spriteSheet, sheetFrames = loadSheet("Assets/outside4.png", TileWidth, TileHeight)
 	fmt.Println("Loaded Environment")
 
 	//Create the batches and the sprite maps
@@ -199,7 +209,7 @@ func InitRender() {
 	TileBatches = make([]*pixel.Batch, NumChunks)
 	for i := 0; i < NumChunks; i++ {
 		TileBatches[i] = pixel.NewBatch(&pixel.TrianglesData{}, spriteSheet)
-		//Update all chunks to their correct heights
+		(*ChunkReference)[i].Init()
 	}
 
 	SelectSprite = pixel.NewSprite(spriteSheet, sheetFrames[159])

@@ -32,6 +32,18 @@ func SetAllChanged(val bool) {
 	}
 }
 
+//Tell the renderer that the visuals must be updated
+func SetDirty(change bool, index int) {
+	(*ChunkReference)[index].SetDirty(change)
+}
+
+//Tells the renderer everything has changed
+func SetAllDirty(val bool) {
+	for i := 0; i < NumChunks; i++ {
+		SetDirty(val, i)
+	}
+}
+
 //Loads a sprite sheet into chunks of wxh
 //Returns the loaded image and the bounds of the sprites
 func loadSheet(fname string, w, h int) (pixel.Picture, []pixel.Rect) {
@@ -93,9 +105,10 @@ func DrawLines(w, h, d int, win *pixelgl.Window) {
 }
 
 func worldToIsoCoords(x, y, z int) pixel.Vec {
+	//fmt.Println(x,y,z)
 	return pixel.V(
-		float64(32.0*(x))+float64(32*y),
-		float64(16.0*(y-x)+z*32))
+		float64(((TileWidth/2)*x)+((TileHeight/2)*y)),
+		float64((TileHeight/4)*(y-x)+z*(TileHeight/2)))
 }
 
 //Returns the bottom? level of what the world coords could be

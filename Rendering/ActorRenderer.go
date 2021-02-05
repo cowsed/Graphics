@@ -31,6 +31,7 @@ func (a ActorRenderer) makeChunkIndex() int {
 //Add Sprite adds the sprite to the pool of sprites to be included in the batch
 //Key us an arguement because if the position changes the key changes so updating it doesnt work
 func (a ActorRenderer) AddSprite(key *[3]int) {
+	println("Added a sprite")
 	//Add the current sprite to the pool to be rendered
 	//Blank key if calling externally
 	if key == nil {
@@ -47,6 +48,7 @@ func (a ActorRenderer) AddSprite(key *[3]int) {
 
 //Remove the sprite from the pool
 func (a ActorRenderer) RemoveSprite(key *[3]int) {
+	println("Removed a sprite")
 	//Blank key if calling externally
 	if key == nil {
 		key = a.makeKey()

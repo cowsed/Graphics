@@ -37,7 +37,9 @@ func CameraContinueMove(mousePos pixel.Vec) {
 func IncHeightCutoff(min int) {
 	if heightCutoff > min {
 		heightCutoff--
+		SetAllDirty(true)
 		SetAllChanged(true)
+
 	}
 }
 
@@ -45,6 +47,8 @@ func IncHeightCutoff(min int) {
 func DecHeightCutoff(max int) {
 	if heightCutoff < max-1 {
 		heightCutoff++
+		SetAllDirty(true)
 		SetAllChanged(true)
+
 	}
 }

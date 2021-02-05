@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	_ "github.com/pkg/profile"
+	_"github.com/pkg/profile"
 
 	"time"
 )
@@ -31,7 +31,7 @@ var WorldMap []render.Chunk
 //Debug things
 
 //DBBool is a boolean controlled by keys to test random features
-var DBBool bool = false
+var DBBool bool = true
 
 //DBBoolLast is the last state of DBBool to get the rising edge of a change
 var DBBoolLast bool = true
@@ -58,20 +58,13 @@ func run() {
 		if DBBool {
 			render.SetAllChanged(true)
 		}
+
 		//Input Handling
 		inputLast := time.Now()
 		handleInput(win)
 		inputDt := time.Since(inputLast).Seconds()
 		render.SendString(fmt.Sprintf("Input Time(ms): %f\n", 1000*inputDt/60.0))
-
-		/*
-			        if DBBoolLast!=DBBool{
-			        	DoVSync=DBBool
-						win.SetVSync(DoVSync)
-				    }
-					DBBoolLast=DBBool
-		*/
-
+		
 		//personRenderer.RemoveSprite()
 
 		render.SendString(fmt.Sprintf("Vsync: %t\n", DoVSync))
@@ -100,8 +93,6 @@ func run() {
 func main() {
 	//defer profile.Start().Stop()
 
-	//Load Renderer
-	render.InitRender()
 
 	chunkData := GenMap2(WorldWidth, WorldHeight, WorldDepth)
 	//Make the World. RN a bit hacky (very hacky)
@@ -118,18 +109,24 @@ func main() {
 	render.ChunkReference = &WorldMap
 	render.SetAllChanged(true)
 
+	//Load Renderer
+	render.InitRender()
+
+
+
 	//Add test sprite to test sprite rendering
+	//Initializing things like this is rather wasteful as it creates and recalculates many things many times
 	personRenderer := &render.ActorRenderer{Sheet: nil, FrameIndex: 120, ChunkX: 0, ChunkY: 0}
 	person := people.Person{Name: "Timothy", X: 0, Y: 1, Z: 12, Renderer: personRenderer}
 	person.UpdateRenderAll(true)
-	personRenderer.AddSprite(nil)
+	//personRenderer.AddSprite(nil)
 	fmt.Println(person)
 
 	personRenderer2 := &render.ActorRenderer{Sheet: nil, FrameIndex: 87, ChunkX: 0, ChunkY: 1}
 	person2 := people.Person{Name: "Timothy2", X: 0, Y: 0, Z: 12, Renderer: personRenderer2}
 	person2.UpdateRenderAll(true)
-	personRenderer2.AddSprite(nil) //Adding sprite and making it calculate its position
-	fmt.Println(person)
+	//personRenderer2.AddSprite(nil) //Adding sprite and making it calculate its position
+	fmt.Println(person2)
 
 	pixelgl.Run(run)
 }

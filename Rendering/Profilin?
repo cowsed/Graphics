@@ -1,0 +1,23 @@
+Results from profiling
+from the profiles it looks like new version should be much faster but it doesnt appear
+
+
+OLD
+Showing nodes accounting for 3110ms, 70.05% of 4440ms total
+------
+      flat  flat%   sum%        cum   cum%
+     0.21s  4.73% 37.84%      0.21s  4.73%  _/home/rich/GoProjects/PixelGames/Test/Rendering.CheckVisibility
+     0.08s  1.80% 62.61%      3.20s 72.07%  _/home/rich/GoProjects/PixelGames/Test/Rendering.RenderChunk
+         0     0% 90.09%      3.44s 77.48%  _/home/rich/GoProjects/PixelGames/Test/Rendering.Render
+         0     0% 90.09%      0.07s  1.58%  _/home/rich/GoProjects/PixelGames/Test/Rendering.RenderUI
+         0     0% 90.09%      3.37s 75.90%  _/home/rich/GoProjects/PixelGames/Test/Rendering.RenderWorld
+
+
+NEW
+Showing nodes accounting for 4.65s, 83.48% of 5.57s total
+-------
+     0.07s  2.05% 62.46%      2.42s 70.97%  _/home/rich/GoProjects/PixelGames/Test/Rendering.(*Chunk).RenderToBatch
+         0     0% 84.46%      2.42s 70.97%  _/home/rich/GoProjects/PixelGames/Test/Rendering.(*Chunk).Render (inline)
+         0     0% 84.46%      2.63s 77.13%  _/home/rich/GoProjects/PixelGames/Test/Rendering.Render
+         0     0% 84.46%      0.03s  0.88%  _/home/rich/GoProjects/PixelGames/Test/Rendering.RenderUI
+         0     0% 84.46%      2.60s 76.25%  _/home/rich/GoProjects/PixelGames/Test/Rendering.RenderWorld
