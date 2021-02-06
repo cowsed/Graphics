@@ -1,7 +1,7 @@
 package render
 
 import (
-	_"fmt"
+	_ "fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"image/color"
@@ -32,7 +32,8 @@ type Chunk struct {
 	VisibleData []Tile
 
 	//Holds the character sprites to be drawn
-	SpriteData *map[[3]int]*ActorRenderer
+	SpriteData        *map[[3]int]*ActorRenderer
+	SpriteDataOrdered []*ActorRenderer
 
 	//The batch of sprites to be drawn when called upon
 	Batch *pixel.Batch
@@ -61,7 +62,6 @@ func (c *Chunk) UpdateTiles(ChunkIndex, cutoffHeight int) {
 func (c *Chunk) Render(win *pixelgl.Window, chunkX, chunkY int) {
 	//Send the relative chunkX and Y coordinates bc they are a state completely made up by the renderer
 
-	//fmt.Println(c.VisibleData)
 	//Assemble the batch
 	c.RenderToBatch(chunkX, chunkY)
 	//Draw to the window
@@ -69,22 +69,53 @@ func (c *Chunk) Render(win *pixelgl.Window, chunkX, chunkY int) {
 }
 
 //Render the world to the batch
+//TODO: Look into the cache locality of this solution (a sprite interface may work better but it also may not)
 func (c *Chunk) RenderToBatch(chunkX, chunkY int) {
 
 	if c.spriteChanged {
 
 		//Reset the batch
 		c.Batch.Clear()
+
+		//lastScore:=0 	//A key to the locations. used to determine if a sprite has been past
+		//Similar to the i=y*w+x type thing just 3d
+		spriteIndex := 0 //The index of the ActorRenderers
 		for _, tile := range c.VisibleData {
+			//IN THE MORNING: SYNCHRONIZE SO THAT EVERYWHERE KNOWS THE NEW FORM OF SPRITE DATA AND MAKE A WAY TO SORT IT
 			//TODO: At some point in here drag in the Sprites after all thats what changed is all about
+			tileScore := c.calcScore(tile.Z, tile.Y, tile.X)
+			//While There are still strites to draw in the layer, draw them
+
+			if len(c.SpriteDataOrdered) > 0 {
+				ar := c.SpriteDataOrdered[spriteIndex] //Next ActorRenderer
+				for c.calcScore(ar.X, ar.Y, ar.Z) < tileScore {
+					//ar:=c.SpriteDataOrdered[spriteIndex]
+
+					//Draw the sprite
+					mx := pixel.IM.Moved(worldToIsoCoords(ar.X+(chunkX*c.W), ar.Y+(chunkY*c.H), ar.Z))
+					sprite := pixel.NewSprite(spriteSheet, sheetFrames[(*ar).FrameIndex])
+					sprite.Draw(c.Batch, mx)
+
+					if spriteIndex < len(c.SpriteDataOrdered) -1{
+						spriteIndex++
+						ar = c.SpriteDataOrdered[spriteIndex] //Next ActorRenderer
+					} else {
+						break
+					}
+				}
+			}
+			//Check spriteIndex and calculate the score
+			//If it is higher than the current (undrawn so far)tiles score, draw the tile and continue
+			//If it is lower than the current (undrawn so far) tiles score, loop through actorRenderers, incrementing spriteIndex until its score is higher than the tiles score
+
 			if tile.Hidden { //Set the 'inside' mask
 				c.Batch.SetColorMask(color.RGBA{60, 60, 60, 255})
 			}
 			//sprite sheet need not be passed because its just a global thing
-			mx:=pixel.IM.Moved(worldToIsoCoords(tile.X+(chunkX*c.W), tile.Y+(chunkY*c.H), tile.Z))
+			mx := pixel.IM.Moved(worldToIsoCoords(tile.X+(chunkX*c.W), tile.Y+(chunkY*c.H), tile.Z))
 			sprite := pixel.NewSprite(spriteSheet, sheetFrames[tile.TileIndex-1])
 			sprite.Draw(c.Batch, mx)
-		
+
 			if tile.Hidden { //Reset the 'inside' mask
 				c.Batch.SetColorMask(color.RGBA{255, 255, 255, 255})
 			}
@@ -94,7 +125,9 @@ func (c *Chunk) RenderToBatch(chunkX, chunkY int) {
 	} else { //If no changes were made theres no need to redraw the batches so just leave it be
 		//return c.Batch
 	}
-
+}
+func (c *Chunk) calcScore(x, y, z int) int {
+	return (z * c.W * c.H) + (y * c.W) + x
 }
 
 //Calculators
@@ -114,12 +147,12 @@ func (c *Chunk) FindVisible(ChunkIndex, cutoffHeight int) {
 	for z := 0; z < intMin(c.MaxHeight, c.D-cutoffHeight); z++ {
 		for y := c.H - 1; y >= 0; y-- { //Go backwards to go over each other
 			for x := 0; x < c.W; x++ {
-				tileIndex := (*c.WorldData)[z][y][x]  //Minus 1 because 0 here is air not the 0 sprite
-				if tileIndex != 0 {                     //again, now -1 is air
+				tileIndex := (*c.WorldData)[z][y][x] //Minus 1 because 0 here is air not the 0 sprite
+				if tileIndex != 0 {                  //again, now -1 is air
 					if visible, inside := CheckVisibility(x, y, z, c.W, c.H, c.D, cutoffHeight, ChunkIndex); visible {
 						//If a non-air tile is visible add it to the visible collection
-
 						c.VisibleData = append(c.VisibleData, Tile{X: x, Y: y, Z: z, TileIndex: tileIndex, Hidden: inside})
+
 					}
 
 				}
@@ -173,6 +206,34 @@ func (c *Chunk) CalculateMax() {
 		}
 	}
 	(*c).MaxHeight = MaxHeight + 1
+}
+
+//Add/Remove Sprite
+func (c *Chunk) AddSprite(a *ActorRenderer) {
+	c.SpriteDataOrdered = append(c.SpriteDataOrdered, a)
+	//Set Recalculate max, Set Re-sort Sprites
+
+}
+func (c *Chunk) RemoveSprite(a *ActorRenderer) {
+	//This is really quite an ineffecient way as soon as theres more than a few sprites in the list
+	if len(c.SpriteDataOrdered) > 1 {
+		i := getIndex(c.SpriteDataOrdered, a)
+		c.SpriteDataOrdered = removePreserveOrder(c.SpriteDataOrdered, i)
+	}
+	//Set Recalculate max, Set Re-sort Sprites
+}
+
+//Helpers
+func removePreserveOrder(slice []*ActorRenderer, s int) []*ActorRenderer {
+	return append(slice[:s], slice[s+1:]...)
+}
+func getIndex(as []*ActorRenderer, value *ActorRenderer) int {
+	for p, v := range as {
+		if v == value {
+			return p
+		}
+	}
+	return -1
 }
 
 //Setters

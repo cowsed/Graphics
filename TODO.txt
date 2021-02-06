@@ -1,0 +1,9 @@
+PROBLEMS
+
+Only updating the list of sprites when updating the world is bad like highly problematic
+Should update it whenever a sprite is added - or at least a dirty flag to recalculate once all the sprites have been added/changed position
+
+Adding and removing sprites each frame as a way to update them is ... questionable
+	requires lots of triple loops
+	
+The Current solution to rendering sprites has the smae problems as the tile list in that allocating space can not be continous cuz you dont know how many to allocate

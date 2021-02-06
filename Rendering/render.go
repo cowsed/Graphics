@@ -22,8 +22,8 @@ var VoidColor color.RGBA = colornames.Skyblue
 
 //Stuff for sprites
 //tile dimensions. should probably always be the same
-const TileWidth=64
-const TileHeight=64
+const TileWidth=32
+const TileHeight=32
 
 var spriteSheet pixel.Picture //maybe load this by stitching together others but for now this
 var sheetFrames []pixel.Rect
@@ -121,7 +121,7 @@ func CheckVisibility(x, y, z, w, h, d, z_cutoff, ChunkIndex int) (bool, bool) {
 }
 
 func InitRender() {
-	spriteSheet, sheetFrames = loadSheet("Assets/outside4.png", TileWidth, TileHeight)
+	spriteSheet, sheetFrames = loadSheet("Assets/Custom3.png", TileWidth, TileHeight)
 	fmt.Println("Loaded Environment")
 
 	//Create the batches and the sprite maps
@@ -132,5 +132,5 @@ func InitRender() {
 		(*ChunkReference)[i].Init()
 	}
 
-	SelectSprite = pixel.NewSprite(spriteSheet, sheetFrames[159])
+	SelectSprite = pixel.NewSprite(spriteSheet, sheetFrames[1])
 }
