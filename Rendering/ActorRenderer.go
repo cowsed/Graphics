@@ -1,14 +1,7 @@
 package render
 
 import (
-	_"fmt"
 	"github.com/faiface/pixel"
-	_ "github.com/faiface/pixel/imdraw"
-	_ "github.com/faiface/pixel/pixelgl"
-	_ "github.com/faiface/pixel/text"
-	_ "golang.org/x/image/colornames"
-	_ "image"
-	_ "image/png"
 )
 
 //This pattern was stolen from a book

@@ -1,13 +1,15 @@
 package main
 
 import (
-	"./Rendering"
 	"fmt"
-	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
 	"image/png"
 	"os"
 	"time"
+
+	"./Rendering"
+
+	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/pixelgl"
 )
 
 func handleInput(win *pixelgl.Window) {
@@ -23,6 +25,7 @@ func handleInput(win *pixelgl.Window) {
 	//Set Camera Zoom
 	render.CameraZoom(win.MouseScroll().Y)
 
+	//Toggle Debug Variable
 	if win.JustPressed(pixelgl.KeyP) {
 		DBBool = !DBBool
 		fmt.Println("change", DBBool)
@@ -48,6 +51,7 @@ func handleInput(win *pixelgl.Window) {
 		render.DecHeightCutoff(WorldDepth)
 	}
 
+	//Taking Screenshots
 	if win.JustPressed(pixelgl.KeySlash) {
 		fmt.Println("TakingScreenshot")
 		fmt.Println("taking screenshot...")

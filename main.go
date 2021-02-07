@@ -1,27 +1,25 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"./People"
 	"./Rendering"
-	"fmt"
+	
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/pkg/profile"
 
-	"time"
 )
 
 //Debug things
 
 //DOProfile is a debug variable saying whether or not to make a profile when it runs
-const DOProfile = false
+const DOProfile = true
 
 //DBBool is a boolean controlled by keys to test random features
 var DBBool bool = true
-
-//DBBoolLast is the last state of DBBool to get the rising edge of a change
-var DBBoolLast bool = true
-
 
 const (
 	//WorldWidth is the size of a chunk(x)
@@ -70,12 +68,13 @@ func run() {
 		inputDt := time.Since(inputLast).Seconds()
 		render.SendString(fmt.Sprintf("Input Time(ms): %f\n", 1000*inputDt/60.0))
 
-		//personRenderer.RemoveSprite()
-
+		//Debug Logging of VSync
 		render.SendString(fmt.Sprintf("Vsync: %t\n", DoVSync))
+
 		//Render the world
 		drawStart := time.Now()
 		render.Render(win, WorldWidth, WorldHeight, WorldDepth)
+		
 		//Timing things
 		drawDt := time.Since(drawStart).Seconds()
 		render.SendString(fmt.Sprintf("Full Self Render Time(ms): %.2f\n", 1000*drawDt))
@@ -96,8 +95,14 @@ func run() {
 }
 
 func main() {
-	defer profile.Start().Stop()
-
+	//If Specified log to a profile
+	if DOProfile{
+		defer profile.Start(profile.ProfilePath(".")).Stop()
+	}
+	
+	
+	
+	
 	//Make the World. RN a bit hacky (very hacky)
 	for i := 0; i < 25; i++ {
 		//fmt.Println("Making chunks")
@@ -121,13 +126,13 @@ func main() {
 
 	//Add test sprite to test sprite rendering
 	//Initializing things like this is rather wasteful as it creates and recalculates many things many times
-	personRenderer := &render.ActorRenderer{Sheet: render.GetSS(), FrameIndex: 12, ChunkX: 0, ChunkY: 0}
+	personRenderer := &render.ActorRenderer{Sheet: nil, FrameIndex: 12, ChunkX: 0, ChunkY: 0}
 	person := people.Person{Name: "Timothy", X: 0, Y: 1, Z: 12, Renderer: personRenderer}
 	personRenderer.Init()
 	person.UpdateRenderAll(true)
 	fmt.Println(person)
 
-	personRenderer2 := &render.ActorRenderer{Sheet: render.GetSS(), FrameIndex: 11, ChunkX: 0, ChunkY: 1}
+	personRenderer2 := &render.ActorRenderer{Sheet: nil, FrameIndex: 11, ChunkX: 0, ChunkY: 1}
 	person2 := people.Person{Name: "Timothy2", X: 0, Y: 0, Z: 11, Renderer: personRenderer2}
 	personRenderer2.Init()
 

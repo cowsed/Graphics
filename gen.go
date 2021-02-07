@@ -1,170 +1,14 @@
 package main
 
-import "fmt"
+import(
+		"math"
+		"math/rand"
 
-import "math"
-import "math/rand"
-import "./Materials"
+		"./Materials"
+)
 
-/*
-func MakeFlags(w int, h int, x int, y int, m [][]int) string {
-	flag := []bool{true, true, true, true, true, true, true, true, true} //representative of if its safe to check
-	if y == 0 {
-		flag[1] = false
-		flag[2] = false
-		flag[8] = false
-	} else if y == h-1 {
-		flag[4] = false
-		flag[5] = false
-		flag[6] = false
-	}
-	if x == 0 {
-		flag[6] = false
-		flag[7] = false
-		flag[8] = false
-	} else if x == w-1 {
-		flag[2] = false
-		flag[3] = false
-		flag[4] = false
-	}
-	cm := [...][2]int{[2]int{0, 0}, [2]int{0, -1}, [2]int{1, -1}, [2]int{1, 0}, [2]int{1, 1}, [2]int{0, 1}, [2]int{-1, 1}, [2]int{-1, 0}, [2]int{-1, -1}}
-	s := ""
-	for i, p := range cm {
-		if flag[i] {
-			r := m[y+p[1]][x+p[0]]
-			if r == 1 {
-				s += "1"
-			} else {
-				s += "0"
-			}
-
-		} else {
-			s += "1"
-		}
-	}
-	fmt.Println("S: ", s)
-	return s
-}
-*/
-/*
-
-func makeArrangement(flags string) int {
-	//flags  starting from back going clockwise 10101010 is 1s at edges nothing at corners
-	//assume ends are 1s
-	if flags[0]=='1'{return HILL_C}
-	switch flags{
-		case ""://,"110101010","110001000","100100010"://Surrounded on at least 2 opposite sides
-			return HILL_C
-		case "10000000":
-			return HILL_F
-		case "100101000":
-			return HILL_FR2
-		case "110000010":
-			return HILL_R
-		case "110000000":
-			return HILL_FR
-		case "011101111":
-			return HILL_BR
-		case "111110101":
-			return HILL_FL
-
-		case "101111101":
-			return HILL_BL2
-		case "101011111":
-			return HILL_BR2
-
-		default:
-			return GRASS_1
-	}
-}
-
-func GenHillSmart() [][][]int {
-
-	noise:=[][]int{
-				[]int{1,0,1,0},
-				[]int{1,1,0,0},
-				[]int{0,1,1,0},
-				}
-
-	h:=len(noise)
-	w:=len(noise[0])
-
-	floor := make([][]int, 0)
-	for y := 0; y < h; y++ {
-		row := make([]int, 0)
-		for x := 0; x < w; x++ {
-			//Flag making
-			fs:=MakeFlags(w,h,x,y,noise)
-			//fmt.Println(fs)
-
-			row = append(row, makeArrangement(fs))
-		}
-		floor = append(floor, row)
-
-	}
-	return [][][]int{floor}
-
-}
-*/
-
-//GenMap1 generates a boring 3d map
-func GenMap1(w, h, d int) [][][]int {
-	world := [][][]int{}
-	i := 0
-	for z := 0; z < d; z++ {
-		floor := make([][]int, 0)
-
-		for y := 0; y < h; y++ {
-			row := make([]int, 0)
-			for x := 0; x < w; x++ {
-				row = append(row, materials.HILL_C)
-				i++
-				i = i % 130
-				fmt.Println(i)
-			}
-			floor = append(floor, row)
-
-		}
-		world = append(world, floor)
-	}
-	//fmt.Println(world)
-	return world
-}
-
-/*
-func GenMap4() [][][]int {
-	floor:=[][]int{}
-	for y := 0; y < 12; y++ {
-		floor = append(floor, []int{HILL_BL2, HILL_B, HILL_BR2,HILL_BL, HILL_B, HILL_BR,HILL_BL, HILL_B, HILL_BR})
-		floor = append(floor, []int{HILL_L, HILL_C, HILL_R,HILL_L, HILL_C, HILL_R,HILL_L, HILL_C, HILL_R})
-		floor = append(floor, []int{HILL_FL2, HILL_F, HILL_FR2,HILL_FL, HILL_F, HILL_FR,HILL_FL, HILL_F, HILL_FR})
-
-	}
-
-	return [][][]int{floor}
-
-}
-
-func GenMap3() [][][]int {
-
-	return [][][]int{
-		[][]int{
-			[]int{HILL_C, HILL_C, HILL_C},
-			[]int{HILL_C, 0, HILL_C},
-			[]int{HILL_C, HILL_C, HILL_C},
-		},
-		[][]int{
-			[]int{HILL_BL, HILL_B, HILL_BR},
-			[]int{HILL_L, HILL_C, HILL_R},
-			[]int{HILL_FL, HILL_F, HILL_FR},
-		},
-	}
-}
-*/
+//Returns a value for the surface based on a mathematical function of the form f(x,y) defined here
 func landFunc(x, y int) int {
-	//	freq := .5
-	//z=f(x,y)
-
 	w := 40
 	h := 56
 	r := math.Sqrt(float64((x-w)*(x-w))+float64((y-h)*(y-h))) / 30
@@ -178,13 +22,9 @@ func landFunc(x, y int) int {
 
 	return 10 + int(v)
 
-	//30+int(10*math.Sin(r*.3))//int(61+2*math.Sin(float64(x)*freq)*math.Sin(float64(y)*freq))
-}
-func landFuncG(x, y int) int {
-	return 7 + 2*y - 3*x
 }
 
-//GenMap2 generates a 3d world of the form z=f(x,y) approx where f is landFunc()
+//GenMap2 generates a 3d world of the form z=f(x,y) approx where f is landFunc() and tiles selected based off of z
 func GenMap2(w, h, d int) [][][]int {
 
 	world := make([][][]int, 0, d)
@@ -195,7 +35,7 @@ func GenMap2(w, h, d int) [][][]int {
 		for y := 0; y < h; y++ {
 			row := make([]int, 0, w)
 			for x := 0; x < w; x++ {
-				block := materials.STONE_1 + rand.Intn(2) //ROCK_BLOCK_1 + rand.Intn(2)
+				block := materials.STONE_1 + rand.Intn(2) 
 				if z > landFunc(x, y) {
 					block = materials.AIR
 				} else if z == landFunc(x, y) {
@@ -214,7 +54,7 @@ func GenMap2(w, h, d int) [][][]int {
 	return world
 }
 
-//GenMap3 creates a map based on landFun() that accounts for chunks
+//GenMap3 creates a map  in the same way as GenMap2 but that accounts for chunks
 func GenMap3(w, h, d, chunkx, chunky int) [][][]int {
 
 	world := make([][][]int, 0, d)
@@ -241,6 +81,5 @@ func GenMap3(w, h, d, chunkx, chunky int) [][][]int {
 		}
 		world = append(world, floor)
 	}
-	//fmt.Println(world)
 	return world
 }

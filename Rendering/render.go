@@ -2,16 +2,14 @@ package render
 
 import (
 	"fmt"
+	"image/color"
+	"time"
+
 	"../Materials"
+
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	_ "github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
-	_ "image"
-	"image/color"
-	_ "image/png"
-	_ "os"
-	"time"
 )
 
 //NumChunks defines the number of chunks visible at once
@@ -27,9 +25,6 @@ const TileWidth = 32
 const TileHeight = 32
 
 var spriteSheet pixel.Picture //maybe load this by stitching together others but for now this
-func GetSS() *pixel.Picture{
-	return &spriteSheet
-}
 
 var sheetFrames []pixel.Rect
 
@@ -38,8 +33,6 @@ var sheetFrames []pixel.Rect
 var SelectSprite *pixel.Sprite
 
 var ChunkReference *[]Chunk
-
-//Debug Things
 
 //Render Everything
 func Render(win *pixelgl.Window, w, h, d int) {

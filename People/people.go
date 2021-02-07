@@ -1,7 +1,6 @@
 package people
 
-import _ "fmt"
-import "../Rendering"
+import( "../Rendering")
 
 type Person struct {
 	Name     string

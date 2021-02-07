@@ -1,4 +1,7 @@
 package materials
+
+
+//Material tile offsetts to reference
 const(
 	AIR = iota
 	CURSOR
@@ -17,39 +20,4 @@ const(
 	
 	BRICK
 	TREE_TRUNK
-)
-
-
-const (
-	GRASS_1 = 151
-	GRASS_2 = 152
-	GRASS_3 = 153
-	GRASS_4 = 154
-	GRASS_5 = 155
-	GRASS_6 = 156
-	GRASS_7 = 157
-
-	HILL_FR = 121
-	HILL_F  = 122
-	HILL_R  = 123
-	HILL_FL = 124
-	HILL_C  = 125
-	HILL_BR = 126
-	HILL_L  = 127
-	HILL_B  = 128
-	HILL_BL = 129
-
-	HILL_BL2 = 111
-	HILL_BR2 = 112
-	HILL_FR2 = 113
-	HILL_FL2 = 114
-
-	ROCK_BLOCK_1 = 105
-	ROCK_BLOCK_2 = 106
-
-	ROCK_FR = 92
-	ROCK_F  = 93
-	ROCK_R  = 94
-	ROCK_FL = 95
-	ROCK_C  = 96
 )

@@ -1,10 +1,10 @@
 package render
 
 import (
-	_ "fmt"
+	"image/color"
+	
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	 "image/color"
 )
 
 type Tile struct {
@@ -250,9 +250,9 @@ func (c *Chunk) SetDirty(dirty bool) {
 }
 
 //Getters
-func (c *Chunk) GetChanged() bool {
+func (c *Chunk) Changed() bool {
 	return c.spriteDirty
 }
-func (c *Chunk) GetDirty() bool {
+func (c *Chunk) Dirty() bool {
 	return c.tileDirty
 }

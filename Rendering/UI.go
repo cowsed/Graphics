@@ -2,15 +2,15 @@ package render
 
 import (
 	"fmt"
+	"image/color"
+	"math"
+	"time"
+
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
-	_ "golang.org/x/image/colornames"
 	"golang.org/x/image/font/basicfont"
-	"image/color"
-	"math"
-	"time"
 )
 
 var basicAtlas = text.NewAtlas(basicfont.Face7x13, text.ASCII)
@@ -25,11 +25,11 @@ var DBStrings []string
 var DBUIEnabled = true
 
 func RenderUI(win *pixelgl.Window) {
-	//These really shouldnt be here but whynot
 
 	//Shows the DB calc of game space
 	SendString(CalculateGamePosition(win, win.MousePosition()).String() + "\n")
 
+	//Calculate the game positions 
 	gpStart := time.Now()
 	gp := CalculateGamePosition(win, win.MousePosition())
 	SendString(fmt.Sprintf("CalcMousePosition(ms): %f\n", time.Since(gpStart).Seconds()*1000))
@@ -42,6 +42,7 @@ func RenderUI(win *pixelgl.Window) {
 	basicTxt := text.New(pixel.V(10, Bounds.Max.Y-float64(13*len(DBStrings))-20.0), basicAtlas)
 	//Reset to screen coordinates
 	win.SetMatrix(pixel.IM)
+	
 
 	//Draw the text
 	if DBUIEnabled {
@@ -50,9 +51,7 @@ func RenderUI(win *pixelgl.Window) {
 
 		if len(DBStrings) < 30 {
 			for _, s := range DBStrings {
-
-				fmt.Fprintln(basicTxt, s)
-
+				fmt.Fprint(basicTxt, s)
 			}
 		} else {
 			fmt.Fprintf(basicTxt, "Too much data would be printed\n")
@@ -63,6 +62,7 @@ func RenderUI(win *pixelgl.Window) {
 	}
 }
 
+//Draw a slightly transparent rectangke for the back if the Debug UI
 func DrawBackingRect(win *pixelgl.Window) {
 	imd := imdraw.New(nil)
 
@@ -71,15 +71,20 @@ func DrawBackingRect(win *pixelgl.Window) {
 	imd.Rectangle(0)
 	imd.Draw(win)
 }
+
+//Toggle the Debug UI
 func ToggleUI() {
 	DBUIEnabled = !DBUIEnabled
 }
 
+
+//Send an arbitrary string to the Debug UI
 func SendString(s string) {
 	//Send an arbitrary string to the UI to write
 	DBStrings = append(DBStrings, s)
 }
 
+//Send and calculate fps based stats
 func SendFPS(fps float64) { //Maybe turn this into a send data function later to send all db data
 	renderFps = fps
 	minFps = math.Min(renderFps, minFps)
