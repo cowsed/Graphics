@@ -14,11 +14,7 @@ I realized I needed a way to visually see what was happening to make things easi
 - [ ] Actual Simulation elements
 
 ## Dependencies
-https://github.com/faiface/pixel
-64x64 tiles from around the internet
-
-
-
+- https://github.com/faiface/pixel and its dependencies
 
 
 ## Controls
@@ -31,4 +27,4 @@ https://github.com/faiface/pixel
 - u - toggle Debug UI
 - v - toggle VSync
 - esc - quit
-- / Take a Screenshot (saved to Screenshots/)
+- / - Take a Screenshot (saved to Screenshots/)
