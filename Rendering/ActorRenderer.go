@@ -1,8 +1,7 @@
 package render
 
 import (
-	//"fmt"
-	//"math/rand"
+	_"fmt"
 	"github.com/faiface/pixel"
 	_ "github.com/faiface/pixel/imdraw"
 	_ "github.com/faiface/pixel/pixelgl"
@@ -20,14 +19,22 @@ type ActorRenderer struct {
 	X, Y, Z        int
 	Visible        bool
 	
+	Sprite *pixel.Sprite //This is the actual part that gets referenced. Other parts are for holding excess for animations and such
+	
 }
 
-func (a ActorRenderer) makeKey() *[3]int {
-	return &[3]int{a.X, a.Y, a.Z}
+
+func (a *ActorRenderer) Init(){
+	a.Sheet=&spriteSheet
+	(*a).Sprite=pixel.NewSprite(*a.Sheet, sheetFrames[a.FrameIndex])
+
 }
+
 func (a ActorRenderer) makeChunkIndex() int {
 	return a.ChunkX + a.ChunkY*chunksDimension
 }
+
+
 
 //Add Sprite adds the sprite to the pool of sprites to be included in the batch
 //Key us an arguement because if the position changes the key changes so updating it doesnt work
@@ -58,6 +65,14 @@ func (a ActorRenderer) RemoveSprite() {
 
 
 	SetChanged(true, ci)
+}
+
+
+//Used For animations
+//Sets the sprite renderer to use the sprite specified in the actor renderer - called when drawing
+func (a *ActorRenderer) UpdateSprite(){
+	
+	a.Sprite.Set(*a.Sheet, sheetFrames[a.FrameIndex])
 }
 
 func (a *ActorRenderer) UpdateVisibility(visible bool) {

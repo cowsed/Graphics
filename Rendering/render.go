@@ -2,15 +2,16 @@ package render
 
 import (
 	"fmt"
+	"../Materials"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"golang.org/x/image/colornames"
-	"time"
-	"image/color"
 	_ "github.com/faiface/pixel/text"
+	"golang.org/x/image/colornames"
 	_ "image"
+	"image/color"
 	_ "image/png"
 	_ "os"
+	"time"
 )
 
 //NumChunks defines the number of chunks visible at once
@@ -22,20 +23,23 @@ var VoidColor color.RGBA = colornames.Skyblue
 
 //Stuff for sprites
 //tile dimensions. should probably always be the same
-const TileWidth=32
-const TileHeight=32
+const TileWidth = 32
+const TileHeight = 32
 
 var spriteSheet pixel.Picture //maybe load this by stitching together others but for now this
+func GetSS() *pixel.Picture{
+	return &spriteSheet
+}
+
 var sheetFrames []pixel.Rect
 
-var TileBatches []*pixel.Batch //Set of Sprites
-
-//var SpritesToDraw []map[string]*ActorRenderer
 
 //Sprite used for the selection cursor
 var SelectSprite *pixel.Sprite
 
 var ChunkReference *[]Chunk
+
+//Debug Things
 
 //Render Everything
 func Render(win *pixelgl.Window, w, h, d int) {
@@ -45,7 +49,6 @@ func Render(win *pixelgl.Window, w, h, d int) {
 
 	//Calculate camera positioning and UI positioning
 	cam := pixel.IM.Scaled(camPos.Add(win.Bounds().Center()), camZoom).Moved(pixel.ZV.Sub(camPos))
-	//oppCam := pixel.IM.Moved(camPos).Scaled(camPos, 1/camZoom)
 	win.SetMatrix(cam)
 
 	//Clear the Window to prepare for drawing
@@ -77,13 +80,12 @@ func RenderWorld(win *pixelgl.Window, w, h, d int) {
 		y = chunksDimension - c/chunksDimension
 		x = c % chunksDimension
 		//This will only update if it's been marked necessary - cool huh
-		(*ChunkReference)[c].UpdateTiles(c,heightCutoff) //Formerly d=heightCut
-		(*ChunkReference)[c].Render(win,x,y)
+		(*ChunkReference)[c].UpdateTiles(c, heightCutoff) //Formerly d=heightCut
+		(*ChunkReference)[c].Render(win, x, y)
 		(*ChunkReference)[c].Batch.Draw(win)
 	}
 
 }
-
 
 func CheckVisibility(x, y, z, w, h, d, z_cutoff, ChunkIndex int) (bool, bool) {
 	onFrontFace := (x == w-1) || (y == 0) || (z == d-z_cutoff-1)
@@ -126,11 +128,9 @@ func InitRender() {
 
 	//Create the batches and the sprite maps
 
-	TileBatches = make([]*pixel.Batch, NumChunks)
 	for i := 0; i < NumChunks; i++ {
-		TileBatches[i] = pixel.NewBatch(&pixel.TrianglesData{}, spriteSheet)
 		(*ChunkReference)[i].Init()
 	}
 
-	SelectSprite = pixel.NewSprite(spriteSheet, sheetFrames[1])
+	SelectSprite = pixel.NewSprite(spriteSheet, sheetFrames[materials.CURSOR-1])
 }

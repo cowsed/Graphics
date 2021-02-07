@@ -165,8 +165,8 @@ func landFunc(x, y int) int {
 	//	freq := .5
 	//z=f(x,y)
 
-	w:=40
-	h:=56
+	w := 40
+	h := 56
 	r := math.Sqrt(float64((x-w)*(x-w))+float64((y-h)*(y-h))) / 30
 	t := math.Atan2(float64(x-w), float64(y-h))
 	f := math.Cos(t * 6)
@@ -195,11 +195,11 @@ func GenMap2(w, h, d int) [][][]int {
 		for y := 0; y < h; y++ {
 			row := make([]int, 0, w)
 			for x := 0; x < w; x++ {
-				block := materials.STONE_1+ rand.Intn(2)  //ROCK_BLOCK_1 + rand.Intn(2)
+				block := materials.STONE_1 + rand.Intn(2) //ROCK_BLOCK_1 + rand.Intn(2)
 				if z > landFunc(x, y) {
 					block = materials.AIR
 				} else if z == landFunc(x, y) {
-					block = materials.GRASS+ rand.Intn(8)
+					block = materials.GRASS + rand.Intn(8)
 				}
 
 				row = append(row, block)
@@ -213,6 +213,8 @@ func GenMap2(w, h, d int) [][][]int {
 	//fmt.Println(world)
 	return world
 }
+
+//GenMap3 creates a map based on landFun() that accounts for chunks
 func GenMap3(w, h, d, chunkx, chunky int) [][][]int {
 
 	world := make([][][]int, 0, d)
@@ -223,12 +225,12 @@ func GenMap3(w, h, d, chunkx, chunky int) [][][]int {
 		for y := 0; y < h; y++ {
 			row := make([]int, 0, w)
 			for x := 0; x < w; x++ {
-				val:=landFunc(x+chunkx*16, y+chunky*16)
-				block := materials.STONE_1+ rand.Intn(2) //Default Block
+				val := landFunc(x+chunkx*16, y+chunky*16)
+				block := materials.STONE_1 + rand.Intn(2) //Default Block
 				if z > val {
 					block = materials.AIR
 				} else if z == val {
-					block = materials.GRASS+ rand.Intn(8)
+					block = materials.GRASS + rand.Intn(8)
 				}
 
 				row = append(row, block)

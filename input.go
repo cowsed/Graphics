@@ -38,6 +38,7 @@ func handleInput(win *pixelgl.Window) {
 		render.ToggleUI()
 	}
 
+
 	//Keys
 	//Moving Height cutoff
 	if win.JustPressed(pixelgl.KeyEqual) {

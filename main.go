@@ -6,10 +6,22 @@ import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	_"github.com/pkg/profile"
+	"github.com/pkg/profile"
 
 	"time"
 )
+
+//Debug things
+
+//DOProfile is a debug variable saying whether or not to make a profile when it runs
+const DOProfile = false
+
+//DBBool is a boolean controlled by keys to test random features
+var DBBool bool = true
+
+//DBBoolLast is the last state of DBBool to get the rising edge of a change
+var DBBoolLast bool = true
+
 
 const (
 	//WorldWidth is the size of a chunk(x)
@@ -23,18 +35,11 @@ const (
 //Globals
 
 //DoVSync controls whether or not to vsync
-var DoVSync bool = true
+var DoVSync bool = false
 
 //WorldMap holds the world grid that holds the world (may soon be changed to a more memory friendly version
 var WorldMap []render.Chunk
 
-//Debug things
-
-//DBBool is a boolean controlled by keys to test random features
-var DBBool bool = false
-
-//DBBoolLast is the last state of DBBool to get the rising edge of a change
-var DBBoolLast bool = true
 
 func run() {
 	//Open the window
@@ -64,7 +69,7 @@ func run() {
 		handleInput(win)
 		inputDt := time.Since(inputLast).Seconds()
 		render.SendString(fmt.Sprintf("Input Time(ms): %f\n", 1000*inputDt/60.0))
-		
+
 		//personRenderer.RemoveSprite()
 
 		render.SendString(fmt.Sprintf("Vsync: %t\n", DoVSync))
@@ -91,18 +96,17 @@ func run() {
 }
 
 func main() {
-	//defer profile.Start().Stop()
+	defer profile.Start().Stop()
 
 	//Make the World. RN a bit hacky (very hacky)
 	for i := 0; i < 25; i++ {
 		//fmt.Println("Making chunks")
 
-		chunky :=  5-i/5
+		chunky := 5 - i/5
 		chunkx := i % 5
-		chunkData := GenMap3(WorldWidth, WorldHeight, WorldDepth,chunkx,chunky)
+		chunkData := GenMap3(WorldWidth, WorldHeight, WorldDepth, chunkx, chunky)
 
-		SpriteData := make(map[[3]int]*render.ActorRenderer)
-		chunk := render.Chunk{MaxHeight: WorldDepth, WorldData: &chunkData, SpriteData: &SpriteData, W: WorldWidth, H: WorldHeight, D: WorldDepth}
+		chunk := render.Chunk{MaxHeight: WorldDepth, WorldData: &chunkData, W: WorldWidth, H: WorldHeight, D: WorldDepth}
 		chunk.CalculateMax()
 
 		WorldMap = append(WorldMap, chunk)
@@ -115,20 +119,19 @@ func main() {
 	//Load Renderer
 	render.InitRender()
 
-
-
 	//Add test sprite to test sprite rendering
 	//Initializing things like this is rather wasteful as it creates and recalculates many things many times
-	personRenderer := &render.ActorRenderer{Sheet: nil, FrameIndex: 12, ChunkX: 0, ChunkY: 0}
+	personRenderer := &render.ActorRenderer{Sheet: render.GetSS(), FrameIndex: 12, ChunkX: 0, ChunkY: 0}
 	person := people.Person{Name: "Timothy", X: 0, Y: 1, Z: 12, Renderer: personRenderer}
+	personRenderer.Init()
 	person.UpdateRenderAll(true)
-	//personRenderer.AddSprite(nil)
 	fmt.Println(person)
 
-	personRenderer2 := &render.ActorRenderer{Sheet: nil, FrameIndex: 8, ChunkX: 0, ChunkY: 1}
+	personRenderer2 := &render.ActorRenderer{Sheet: render.GetSS(), FrameIndex: 11, ChunkX: 0, ChunkY: 1}
 	person2 := people.Person{Name: "Timothy2", X: 0, Y: 0, Z: 11, Renderer: personRenderer2}
-	person2.UpdateRenderAll(true)
-	//personRenderer2.AddSprite(nil) //Adding sprite and making it calculate its position
+	personRenderer2.Init()
+
+person2.UpdateRenderAll(true)
 	fmt.Println(person2)
 
 	pixelgl.Run(run)

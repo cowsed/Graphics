@@ -50,12 +50,14 @@ func RenderUI(win *pixelgl.Window) {
 
 		if len(DBStrings) < 30 {
 			for _, s := range DBStrings {
-				fmt.Fprintf(basicTxt, s)
+
+				fmt.Fprintln(basicTxt, s)
+
 			}
 		} else {
 			fmt.Fprintf(basicTxt, "Too much data would be printed\n")
 		}
-		DBStrings = []string{}
+		DBStrings = nil//[]string{}
 
 		basicTxt.Draw(win, pixel.IM.Scaled(pixel.ZV, 1.)) // baseMx.Scaled(camPos, 2))
 	}

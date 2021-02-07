@@ -10,7 +10,6 @@ var (
 	camPos       = pixel.V(0, 0)
 	oldCamPos    = pixel.ZV
 	mouseStart   = pixel.ZV
-	camSpeed     = 500.0
 	camZoom      = 1.0
 	camZoomSpeed = 1.2
 

@@ -4,12 +4,13 @@ import (
 	_ "fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"image/color"
+	 "image/color"
 )
 
 type Tile struct {
 	X, Y, Z   int
 	TileIndex int
+	Sprite    *pixel.Sprite
 	//If the tile should be drawn with the "inside" overlay
 	Hidden bool
 }
@@ -17,10 +18,10 @@ type Tile struct {
 //A type to hold the chunk data in one place
 type Chunk struct {
 	//If the chunk has changed (sprites moved)
-	spriteChanged bool
+	spriteDirty bool
 
 	//If the tiles have changed
-	Dirty bool
+	tileDirty bool
 
 	//Maximum height to render to
 	MaxHeight int
@@ -32,7 +33,6 @@ type Chunk struct {
 	VisibleData []Tile
 
 	//Holds the character sprites to be drawn
-	SpriteData        *map[[3]int]*ActorRenderer
 	SpriteDataOrdered []*ActorRenderer
 
 	//The batch of sprites to be drawn when called upon
@@ -46,16 +46,19 @@ type Chunk struct {
 func (c *Chunk) Init() {
 	//Create the batch
 	c.Batch = pixel.NewBatch(&pixel.TrianglesData{}, spriteSheet)
-	c.Dirty = true
+	
+	//Tell the system to recalculate itself
+	c.spriteDirty = true
+	c.tileDirty = true
 }
 
 //Update the tile map
 func (c *Chunk) UpdateTiles(ChunkIndex, cutoffHeight int) {
-	if c.Dirty {
+	if c.tileDirty {
 		c.FindVisible(ChunkIndex, cutoffHeight)
 	}
 	//Set it to dirty so it fixes itself on startup
-	c.Dirty = false
+	c.tileDirty = false
 }
 
 //Render the tile map to the chunk batch
@@ -72,17 +75,15 @@ func (c *Chunk) Render(win *pixelgl.Window, chunkX, chunkY int) {
 //TODO: Look into the cache locality of this solution (a sprite interface may work better but it also may not)
 func (c *Chunk) RenderToBatch(chunkX, chunkY int) {
 
-	if c.spriteChanged {
+	if c.spriteDirty {//If no changes were made theres no need to redraw the batches so just leave it be
 
 		//Reset the batch
 		c.Batch.Clear()
 
-		//lastScore:=0 	//A key to the locations. used to determine if a sprite has been past
 		//Similar to the i=y*w+x type thing just 3d
 		spriteIndex := 0 //The index of the ActorRenderers
 		for _, tile := range c.VisibleData {
-			//IN THE MORNING: SYNCHRONIZE SO THAT EVERYWHERE KNOWS THE NEW FORM OF SPRITE DATA AND MAKE A WAY TO SORT IT
-			//TODO: At some point in here drag in the Sprites after all thats what changed is all about
+
 			tileScore := c.calcScore(tile.Z, tile.Y, tile.X)
 			//While There are still strites to draw in the layer, draw them
 
@@ -93,10 +94,10 @@ func (c *Chunk) RenderToBatch(chunkX, chunkY int) {
 
 					//Draw the sprite
 					mx := pixel.IM.Moved(worldToIsoCoords(ar.X+(chunkX*c.W), ar.Y+(chunkY*c.H), ar.Z))
-					sprite := pixel.NewSprite(spriteSheet, sheetFrames[(*ar).FrameIndex])
-					sprite.Draw(c.Batch, mx)
+					(*ar).UpdateSprite() //pixel.NewSprite(spriteSheet, sheetFrames[(*ar).FrameIndex])
+					ar.Sprite.Draw(c.Batch, mx)
 
-					if spriteIndex < len(c.SpriteDataOrdered) -1{
+					if spriteIndex < len(c.SpriteDataOrdered)-1 {
 						spriteIndex++
 						ar = c.SpriteDataOrdered[spriteIndex] //Next ActorRenderer
 					} else {
@@ -113,18 +114,17 @@ func (c *Chunk) RenderToBatch(chunkX, chunkY int) {
 			}
 			//sprite sheet need not be passed because its just a global thing
 			mx := pixel.IM.Moved(worldToIsoCoords(tile.X+(chunkX*c.W), tile.Y+(chunkY*c.H), tile.Z))
-			sprite := pixel.NewSprite(spriteSheet, sheetFrames[tile.TileIndex-1])
-			sprite.Draw(c.Batch, mx)
+			//sprite := pixel.NewSprite(spriteSheet, sheetFrames[tile.TileIndex-1])
+
+			tile.Sprite.Draw(c.Batch, mx)
 
 			if tile.Hidden { //Reset the 'inside' mask
 				c.Batch.SetColorMask(color.RGBA{255, 255, 255, 255})
 			}
 		}
 		//Reset changed
-		c.spriteChanged = false
-	} else { //If no changes were made theres no need to redraw the batches so just leave it be
-		//return c.Batch
-	}
+		c.spriteDirty = false
+	} 
 }
 func (c *Chunk) calcScore(x, y, z int) int {
 	return (z * c.W * c.H) + (y * c.W) + x
@@ -142,7 +142,7 @@ func (c *Chunk) FindVisible(ChunkIndex, cutoffHeight int) {
 	//Capacity here is totally made up tho hopefully it helps with cacheing and locality
 	//TODO make a simple function that would calculate the surface area of a box the size of the chunk or something and use that
 	//fmt.Println("Updating Visible Data")
-	c.VisibleData = make([]Tile, 0, 400)
+	c.VisibleData = make([]Tile, 0, 100)
 	//Run through all of 3d space and include
 	for z := 0; z < intMin(c.MaxHeight, c.D-cutoffHeight); z++ {
 		for y := c.H - 1; y >= 0; y-- { //Go backwards to go over each other
@@ -151,7 +151,7 @@ func (c *Chunk) FindVisible(ChunkIndex, cutoffHeight int) {
 				if tileIndex != 0 {                  //again, now -1 is air
 					if visible, inside := CheckVisibility(x, y, z, c.W, c.H, c.D, cutoffHeight, ChunkIndex); visible {
 						//If a non-air tile is visible add it to the visible collection
-						c.VisibleData = append(c.VisibleData, Tile{X: x, Y: y, Z: z, TileIndex: tileIndex, Hidden: inside})
+						c.VisibleData = append(c.VisibleData, Tile{Sprite: pixel.NewSprite(spriteSheet, sheetFrames[tileIndex-1]), X: x, Y: y, Z: z, TileIndex: tileIndex, Hidden: inside})
 
 					}
 
@@ -161,7 +161,7 @@ func (c *Chunk) FindVisible(ChunkIndex, cutoffHeight int) {
 	}
 	//Just in case the caller didnt do this
 	//Also needs to redraw everything
-	c.spriteChanged = true
+	c.spriteDirty = true
 
 }
 
@@ -190,12 +190,7 @@ func (c *Chunk) CalculateMax() {
 					MaxHeight = z
 					break
 				}
-				//If theres a high sprite
-				if _, ok := (*c.SpriteData)[[3]int{x, y, z}]; ok {
-					MaxHeight = z
-					break
 
-				}
 			}
 			if MaxHeight != -1 {
 				break
@@ -205,6 +200,14 @@ func (c *Chunk) CalculateMax() {
 			break
 		}
 	}
+
+	//Check Sprites
+	for _, s := range c.SpriteDataOrdered {
+		if s.Z > MaxHeight {
+			MaxHeight = s.Z
+		}
+	}
+
 	(*c).MaxHeight = MaxHeight + 1
 }
 
@@ -240,16 +243,16 @@ func getIndex(as []*ActorRenderer, value *ActorRenderer) int {
 
 //Set if it has changed
 func (c *Chunk) SetChanged(changed bool) {
-	c.spriteChanged = changed
+	c.spriteDirty = changed
 }
 func (c *Chunk) SetDirty(dirty bool) {
-	c.Dirty = dirty
+	c.tileDirty = dirty
 }
 
 //Getters
 func (c *Chunk) GetChanged() bool {
-	return c.spriteChanged
+	return c.spriteDirty
 }
 func (c *Chunk) GetDirty() bool {
-	return c.Dirty
+	return c.tileDirty
 }
