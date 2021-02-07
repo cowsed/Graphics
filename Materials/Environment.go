@@ -4,7 +4,8 @@ package materials
 //Material tile offsetts to reference
 const(
 	AIR = iota
-	CURSOR
+	CURSOR_BLOCK
+	CURSOR_TOP
 	GRASS
 	GRASS_LESS_1
 	GRASS_LESS_2
@@ -20,4 +21,6 @@ const(
 	
 	BRICK
 	TREE_TRUNK
+	
+	ROCK_WALL_V_1
 )

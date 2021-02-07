@@ -6,6 +6,7 @@ import (
 
 	"./People"
 	"./Rendering"
+	"./Materials"
 	
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
@@ -16,10 +17,10 @@ import (
 //Debug things
 
 //DOProfile is a debug variable saying whether or not to make a profile when it runs
-const DOProfile = true
+const DOProfile = false
 
 //DBBool is a boolean controlled by keys to test random features
-var DBBool bool = true
+var DBBool bool = false
 
 const (
 	//WorldWidth is the size of a chunk(x)
@@ -104,7 +105,7 @@ func main() {
 	
 	
 	//Make the World. RN a bit hacky (very hacky)
-	for i := 0; i < 25; i++ {
+	for i := 0; i < render.NumChunks; i++ {
 		//fmt.Println("Making chunks")
 
 		chunky := 5 - i/5
@@ -126,17 +127,23 @@ func main() {
 
 	//Add test sprite to test sprite rendering
 	//Initializing things like this is rather wasteful as it creates and recalculates many things many times
-	personRenderer := &render.ActorRenderer{Sheet: nil, FrameIndex: 12, ChunkX: 0, ChunkY: 0}
-	person := people.Person{Name: "Timothy", X: 0, Y: 1, Z: 12, Renderer: personRenderer}
+	personRenderer := &render.ActorRenderer{Sheet: nil, FrameIndex: materials.ROCK_WALL_V_1-1, ChunkX: 0, ChunkY: 0}
+	person := people.Person{Name: "Timothy", X: 0, Y: 0, Z: 10, Renderer: personRenderer}
 	personRenderer.Init()
-	person.UpdateRenderAll(true)
+	
 	fmt.Println(person)
 
-	personRenderer2 := &render.ActorRenderer{Sheet: nil, FrameIndex: 11, ChunkX: 0, ChunkY: 1}
-	person2 := people.Person{Name: "Timothy2", X: 0, Y: 0, Z: 11, Renderer: personRenderer2}
+	person.UpdateRenderAll(true)
+	
+	fmt.Println(person)
+
+	personRenderer2 := &render.ActorRenderer{Sheet: nil, FrameIndex: materials.ROCK_WALL_V_1-1, ChunkX: 0, ChunkY:0}
+	person2 := people.Person{Name: "Timothy2", X: 0, Y: 1, Z: 10, Renderer: personRenderer2}
 	personRenderer2.Init()
 
-person2.UpdateRenderAll(true)
+	fmt.Println(person2)
+
+	person2.UpdateRenderAll(true)
 	fmt.Println(person2)
 
 	pixelgl.Run(run)

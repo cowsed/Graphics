@@ -23,15 +23,14 @@ func (a *ActorRenderer) Init(){
 
 }
 
-func (a ActorRenderer) makeChunkIndex() int {
+func (a *ActorRenderer) makeChunkIndex() int {
 	return a.ChunkX + a.ChunkY*chunksDimension
 }
 
 
 
 //Add Sprite adds the sprite to the pool of sprites to be included in the batch
-//Key us an arguement because if the position changes the key changes so updating it doesnt work
-func (a ActorRenderer) AddSprite() {
+func (a *ActorRenderer) AddSprite() {
 	println("Added a sprite")
 	//Add the current sprite to the pool to be rendered
 	//Blank key if calling externally
@@ -39,7 +38,7 @@ func (a ActorRenderer) AddSprite() {
 	//Create chunk index
 	ci := a.makeChunkIndex()
 	//Make a separate map for sprites to draw for each chunk.
-	(*ChunkReference)[ci].AddSprite(&a)
+	(*ChunkReference)[ci].AddSprite(a)
 	
 	//This may be bad cuz it recalculates the max which could happen many times a frame (which is bad)
 	(*ChunkReference)[ci].CalculateMax()
@@ -48,13 +47,13 @@ func (a ActorRenderer) AddSprite() {
 }
 
 //Remove the sprite from the pool
-func (a ActorRenderer) RemoveSprite() {
+func (a *ActorRenderer) RemoveSprite() {
 	println("Removed a sprite")
 	//Blank key if calling externally
 	//Create chunk index
 	ci := a.makeChunkIndex()
 
-	(*ChunkReference)[ci].RemoveSprite(&a)
+	(*ChunkReference)[ci].RemoveSprite(a)
 
 
 	SetChanged(true, ci)
@@ -63,7 +62,7 @@ func (a ActorRenderer) RemoveSprite() {
 
 //Used For animations
 //Sets the sprite renderer to use the sprite specified in the actor renderer - called when drawing
-func (a *ActorRenderer) UpdateSprite(){
+func (a *ActorRenderer) UpdateSpriteImage(){
 	
 	a.Sprite.Set(*a.Sheet, sheetFrames[a.FrameIndex])
 }
@@ -78,6 +77,6 @@ func (a *ActorRenderer) UpdatePos(x, y, z int) {
 	a.X = x
 	a.Y = y
 	a.Z = z
-	a.RemoveSprite()
-	a.AddSprite()
+	//a.RemoveSprite()
+	//a.AddSprite()
 }

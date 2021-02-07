@@ -7,3 +7,32 @@ Adding and removing sprites each frame as a way to update them is ... questionab
 	requires lots of triple loops
 	
 The Current solution to rendering sprites has the smae problems as the tile list in that allocating space can not be continous cuz you dont know how many to allocate
+
+
+FIX SPTITE RENDEREING WHEN IN THE SAME CHUNK
+
+RN ONLY WORKS WITH 1 SPRITE PER CHUNK
+^
+|
+v
+also figure out why draw to batch  and set dirty is called som often
+updating every frame even when the debug setDirty is off
+It seems to come from FindVisible which seems to be called each loop
+sike thats just cuz theres 25
+it now seems that that was purely because i cant count to 25
+^
+|
+v
+problem is adjacent tl the score generating system 
+scores are generated and for whatever reason the sprites always get drawn first
+which is wrong
+very wrong
+^
+|
+v yo i fixed it
+changed order in call to calcscore that was wrong
+added section to finish adding sprites that are above top tile
+
+World Generator/Art
+make tiles for back , back side, front, front side that are added by world generation or something to 
+for all intents and purposes they are the same as regular grass but show depth

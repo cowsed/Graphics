@@ -14,7 +14,7 @@ import (
 
 //NumChunks defines the number of chunks visible at once
 const NumChunks = 25
-const chunksDimension = 5
+const chunksDimension =5
 
 //VoidColor defines the color of the background
 var VoidColor color.RGBA = colornames.Skyblue
@@ -73,9 +73,8 @@ func RenderWorld(win *pixelgl.Window, w, h, d int) {
 		y = chunksDimension - c/chunksDimension
 		x = c % chunksDimension
 		//This will only update if it's been marked necessary - cool huh
-		(*ChunkReference)[c].UpdateTiles(c, heightCutoff) //Formerly d=heightCut
+		(*ChunkReference)[c].UpdateTiles(c, heightCutoff)
 		(*ChunkReference)[c].Render(win, x, y)
-		(*ChunkReference)[c].Batch.Draw(win)
 	}
 
 }
@@ -125,5 +124,5 @@ func InitRender() {
 		(*ChunkReference)[i].Init()
 	}
 
-	SelectSprite = pixel.NewSprite(spriteSheet, sheetFrames[materials.CURSOR-1])
+	SelectSprite = pixel.NewSprite(spriteSheet, sheetFrames[materials.CURSOR_TOP-1])
 }

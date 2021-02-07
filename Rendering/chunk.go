@@ -1,8 +1,10 @@
 package render
 
 import (
+	"fmt"
 	"image/color"
-	
+	"sort"
+
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 )
@@ -46,7 +48,7 @@ type Chunk struct {
 func (c *Chunk) Init() {
 	//Create the batch
 	c.Batch = pixel.NewBatch(&pixel.TrianglesData{}, spriteSheet)
-	
+
 	//Tell the system to recalculate itself
 	c.spriteDirty = true
 	c.tileDirty = true
@@ -58,7 +60,8 @@ func (c *Chunk) UpdateTiles(ChunkIndex, cutoffHeight int) {
 		c.FindVisible(ChunkIndex, cutoffHeight)
 	}
 	//Set it to dirty so it fixes itself on startup
-	c.tileDirty = false
+	c.SetDirty(false)
+
 }
 
 //Render the tile map to the chunk batch
@@ -68,33 +71,36 @@ func (c *Chunk) Render(win *pixelgl.Window, chunkX, chunkY int) {
 	//Assemble the batch
 	c.RenderToBatch(chunkX, chunkY)
 	//Draw to the window
-	//c.Batch.Draw(win)
+	c.Batch.Draw(win)
 }
 
 //Render the world to the batch
 //TODO: Look into the cache locality of this solution (a sprite interface may work better but it also may not)
 func (c *Chunk) RenderToBatch(chunkX, chunkY int) {
 
-	if c.spriteDirty {//If no changes were made theres no need to redraw the batches so just leave it be
+	if c.spriteDirty { //If no changes were made theres no need to redraw the batches so just leave it be
 
 		//Reset the batch
 		c.Batch.Clear()
 
+		//Resort the sprites based on position
+		c.sortARs(c.SpriteDataOrdered)
+
 		//Similar to the i=y*w+x type thing just 3d
 		spriteIndex := 0 //The index of the ActorRenderers
+
 		for _, tile := range c.VisibleData {
 
-			tileScore := c.calcScore(tile.Z, tile.Y, tile.X)
+			tileScore := c.calcScore(tile.X, tile.Y, tile.Z)
 			//While There are still strites to draw in the layer, draw them
 
-			if len(c.SpriteDataOrdered) > 0 {
+			if len(c.SpriteDataOrdered) > 0 && spriteIndex < len(c.SpriteDataOrdered)-1 { //If there are any sprites and we've not run out of sprites
 				ar := c.SpriteDataOrdered[spriteIndex] //Next ActorRenderer
-				for c.calcScore(ar.X, ar.Y, ar.Z) < tileScore {
-					//ar:=c.SpriteDataOrdered[spriteIndex]
 
+				for c.calcScore(ar.X, ar.Y, ar.Z) < tileScore {
 					//Draw the sprite
 					mx := pixel.IM.Moved(worldToIsoCoords(ar.X+(chunkX*c.W), ar.Y+(chunkY*c.H), ar.Z))
-					(*ar).UpdateSprite() //pixel.NewSprite(spriteSheet, sheetFrames[(*ar).FrameIndex])
+					(*ar).UpdateSpriteImage() //pixel.NewSprite(spriteSheet, sheetFrames[(*ar).FrameIndex])
 					ar.Sprite.Draw(c.Batch, mx)
 
 					if spriteIndex < len(c.SpriteDataOrdered)-1 {
@@ -105,29 +111,48 @@ func (c *Chunk) RenderToBatch(chunkX, chunkY int) {
 					}
 				}
 			}
-			//Check spriteIndex and calculate the score
-			//If it is higher than the current (undrawn so far)tiles score, draw the tile and continue
-			//If it is lower than the current (undrawn so far) tiles score, loop through actorRenderers, incrementing spriteIndex until its score is higher than the tiles score
 
 			if tile.Hidden { //Set the 'inside' mask
 				c.Batch.SetColorMask(color.RGBA{60, 60, 60, 255})
 			}
-			//sprite sheet need not be passed because its just a global thing
+
 			mx := pixel.IM.Moved(worldToIsoCoords(tile.X+(chunkX*c.W), tile.Y+(chunkY*c.H), tile.Z))
-			//sprite := pixel.NewSprite(spriteSheet, sheetFrames[tile.TileIndex-1])
+
+			//If mx is within camera view
 
 			tile.Sprite.Draw(c.Batch, mx)
 
 			if tile.Hidden { //Reset the 'inside' mask
 				c.Batch.SetColorMask(color.RGBA{255, 255, 255, 255})
 			}
+
 		}
+		//If finished and theres still some sprites left over, draw them
+
+		//Draw the sprite
+		for i := spriteIndex; i < len(c.SpriteDataOrdered); i++ {
+			ar := c.SpriteDataOrdered[i]
+
+			mx := pixel.IM.Moved(worldToIsoCoords(ar.X+(chunkX*c.W), ar.Y+(chunkY*c.H), ar.Z))
+			(*ar).UpdateSpriteImage() //pixel.NewSprite(spriteSheet, sheetFrames[(*ar).FrameIndex])
+			ar.Sprite.Draw(c.Batch, mx)
+		}
+
 		//Reset changed
 		c.spriteDirty = false
-	} 
+	}
 }
+
+//Caluclates the single value for position
 func (c *Chunk) calcScore(x, y, z int) int {
-	return (z * c.W * c.H) + (y * c.W) + x
+	return (z * c.W * c.H) + (((c.W - 1) - y) * c.W) + x
+}
+
+//Sorts the actor renderers by theie calc score
+func (c *Chunk) sortARs(as []*ActorRenderer) {
+	sort.Slice(as, func(i, j int) bool {
+		return c.calcScore(as[i].X, as[i].Y, as[i].Z) < c.calcScore(as[j].X, as[j].Y, as[j].Z)
+	})
 }
 
 //Calculators
@@ -138,6 +163,7 @@ func (c *Chunk) calcScore(x, y, z int) int {
 func (c *Chunk) FindVisible(ChunkIndex, cutoffHeight int) {
 	//Reset visibleData slice (i think this is what caused the crash earlier
 	//TODO maybe reuse space to make the garbage collector happy as i think the gc frames are occuring causing stuttering
+
 	c.VisibleData = nil
 	//Capacity here is totally made up tho hopefully it helps with cacheing and locality
 	//TODO make a simple function that would calculate the surface area of a box the size of the chunk or something and use that
@@ -213,22 +239,28 @@ func (c *Chunk) CalculateMax() {
 
 //Add/Remove Sprite
 func (c *Chunk) AddSprite(a *ActorRenderer) {
+
+	fmt.Printf("When Added: %p\n", a)
 	c.SpriteDataOrdered = append(c.SpriteDataOrdered, a)
 	//Set Recalculate max, Set Re-sort Sprites
 
 }
 func (c *Chunk) RemoveSprite(a *ActorRenderer) {
+
 	//This is really quite an ineffecient way as soon as theres more than a few sprites in the list
 	if len(c.SpriteDataOrdered) > 1 {
 		i := getIndex(c.SpriteDataOrdered, a)
+		if i == -1 {
+
+		}
 		c.SpriteDataOrdered = removePreserveOrder(c.SpriteDataOrdered, i)
 	}
 	//Set Recalculate max, Set Re-sort Sprites
 }
 
 //Helpers
-func removePreserveOrder(slice []*ActorRenderer, s int) []*ActorRenderer {
-	return append(slice[:s], slice[s+1:]...)
+func removePreserveOrder(as []*ActorRenderer, s int) []*ActorRenderer {
+	return append(as[:s], as[s+1:]...)
 }
 func getIndex(as []*ActorRenderer, value *ActorRenderer) int {
 	for p, v := range as {

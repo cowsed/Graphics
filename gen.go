@@ -19,6 +19,8 @@ func landFunc(x, y int) int {
 	if f-r < 4 {
 		v = f - r
 	}
+	
+	v*=1+r
 
 	return 10 + int(v)
 
@@ -38,7 +40,7 @@ func GenMap2(w, h, d int) [][][]int {
 				block := materials.STONE_1 + rand.Intn(2) 
 				if z > landFunc(x, y) {
 					block = materials.AIR
-				} else if z == landFunc(x, y) {
+				} else if z == landFunc(x, (h-1)-y) {
 					block = materials.GRASS + rand.Intn(8)
 				}
 
