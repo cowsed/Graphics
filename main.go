@@ -17,7 +17,7 @@ import (
 //Debug things
 
 //DOProfile is a debug variable saying whether or not to make a profile when it runs
-const DOProfile = false
+const DOProfile = true
 
 //DBBool is a boolean controlled by keys to test random features
 var DBBool bool = false
@@ -34,7 +34,7 @@ const (
 //Globals
 
 //DoVSync controls whether or not to vsync
-var DoVSync bool = false
+var DoVSync bool = true
 
 //WorldMap holds the world grid that holds the world (may soon be changed to a more memory friendly version
 var WorldMap []render.Chunk
