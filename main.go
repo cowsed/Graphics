@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"./Materials"
 	"./People"
 	"./Rendering"
-	"./Materials"
-	
+
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/pkg/profile"
-
 )
 
 //Debug things
@@ -20,15 +19,15 @@ import (
 const DOProfile = true
 
 //DBBool is a boolean controlled by keys to test random features
-var DBBool bool = false
+var DBBool bool = true
 
 const (
 	//WorldWidth is the size of a chunk(x)
-	WorldWidth int = 16
+	ChunkWidth int = 16
 	//WorldHeight is the height of a chunk (y)
-	WorldHeight int = 16
+	ChunkHeight int = 16
 	//WorldDepth is the depth of a chunk (z)
-	WorldDepth int = 160
+	ChunkDepth int = 16
 )
 
 //Globals
@@ -37,8 +36,14 @@ const (
 var DoVSync bool = true
 
 //WorldMap holds the world grid that holds the world (may soon be changed to a more memory friendly version
-var WorldMap []render.Chunk
+var WorldMap []Location
 
+var RenderChunkMap []render.Chunk
+
+
+//Testing
+//Peoples
+var person people.Actor
 
 func run() {
 	//Open the window
@@ -59,8 +64,10 @@ func run() {
 
 		//Testing
 		render.SendString(fmt.Sprintf("Debug Boolean: %t\n", DBBool))
+
 		if DBBool {
-			render.SetAllChanged(true)
+			person.Update()
+			//render.SetAllChanged(true)
 		}
 
 		//Input Handling
@@ -74,8 +81,8 @@ func run() {
 
 		//Render the world
 		drawStart := time.Now()
-		render.Render(win, WorldWidth, WorldHeight, WorldDepth)
-		
+		render.Render(win, ChunkWidth, ChunkHeight, ChunkDepth)
+
 		//Timing things
 		drawDt := time.Since(drawStart).Seconds()
 		render.SendString(fmt.Sprintf("Full Self Render Time(ms): %.2f\n", 1000*drawDt))
@@ -97,53 +104,51 @@ func run() {
 
 func main() {
 	//If Specified log to a profile
-	if DOProfile{
+	if DOProfile {
 		defer profile.Start(profile.ProfilePath(".")).Stop()
 	}
-	
-	
-	
-	
+
+	materials.LoadSprites("Materials/tiles.csv", "Assets/Custom3.png")
+
 	//Make the World. RN a bit hacky (very hacky)
 	for i := 0; i < render.NumChunks; i++ {
 		//fmt.Println("Making chunks")
 
 		chunky := 5 - i/5
 		chunkx := i % 5
-		chunkData := GenMap3(WorldWidth, WorldHeight, WorldDepth, chunkx, chunky)
+		chunkData := GenMap3(ChunkWidth, ChunkHeight, ChunkDepth, chunkx, chunky)
 
-		chunk := render.Chunk{MaxHeight: WorldDepth, WorldData: &chunkData, W: WorldWidth, H: WorldHeight, D: WorldDepth}
-		chunk.CalculateMax()
+		chunk := Location{X: chunkx, Y: chunky, W: ChunkWidth, H: ChunkHeight, D: ChunkDepth, Actors:[]*people.Actor{}, Props: []string{}, Environment: &chunkData}
 
-		WorldMap = append(WorldMap, chunk)
+		chunk.Marshal()
+
+		WorldMap  = append(WorldMap, chunk)
+		RenderChunkMap = append(RenderChunkMap, chunk.MakeRenderChunk())
 	}
 
 	//RN this is off because really the renderer should have the chunks but since rn the chuinkmap and the world map are the smae this is what were stuck with
-	render.ChunkReference = &WorldMap
-	render.SetAllChanged(true)
+	render.ChunkReference = &RenderChunkMap
 
 	//Load Renderer
 	render.InitRender()
 
 	//Add test sprite to test sprite rendering
 	//Initializing things like this is rather wasteful as it creates and recalculates many things many times
-	personRenderer := &render.ActorRenderer{Sheet: nil, FrameIndex: materials.ROCK_WALL_V_1-1, ChunkX: 0, ChunkY: 0}
-	person := people.Person{Name: "Timothy", X: 0, Y: 0, Z: 10, Renderer: personRenderer}
-	personRenderer.Init()
-	
+	personRenderer := &render.ActorRenderer{Sheet: nil, FrameIndex: materials.Sprites["ROCK_WALL_V_1"]}
+	person = people.Actor{Name: "Timothy", X: 0, Y: 0, Z: 10, Renderer: personRenderer}
+	WorldMap[0].AddActor(&person)
+
 	fmt.Println(person)
 
-	person.UpdateRenderAll(true)
 	
-	fmt.Println(person)
+	personRenderer2 := &render.ActorRenderer{Sheet: nil, FrameIndex: materials.Sprites["GRASS_LESS_2"]}
+	person2 := people.Actor{Name: "Timothy2", X: 0, Y: 1, Z: 10, Renderer: personRenderer2}
 
-	personRenderer2 := &render.ActorRenderer{Sheet: nil, FrameIndex: materials.ROCK_WALL_V_1-1, ChunkX: 0, ChunkY:0}
-	person2 := people.Person{Name: "Timothy2", X: 0, Y: 1, Z: 10, Renderer: personRenderer2}
-	personRenderer2.Init()
+	//person2.AddToChunk(&person2)
+	WorldMap[0].AddActor(&person2)
 
-	fmt.Println(person2)
 
-	person2.UpdateRenderAll(true)
+
 	fmt.Println(person2)
 
 	pixelgl.Run(run)

@@ -21,11 +21,10 @@ func landFunc(x, y int) int {
 	}
 	
 	v*=1+r
-
-	return 10 + int(v)
+	return 6 + int(v)/2
 
 }
-
+/*
 //GenMap2 generates a 3d world of the form z=f(x,y) approx where f is landFunc() and tiles selected based off of z
 func GenMap2(w, h, d int) [][][]int {
 
@@ -55,6 +54,7 @@ func GenMap2(w, h, d int) [][][]int {
 	//fmt.Println(world)
 	return world
 }
+*/
 
 //GenMap3 creates a map  in the same way as GenMap2 but that accounts for chunks
 func GenMap3(w, h, d, chunkx, chunky int) [][][]int {
@@ -63,16 +63,17 @@ func GenMap3(w, h, d, chunkx, chunky int) [][][]int {
 
 	for z := 0; z < d; z++ {
 		floor := make([][]int, 0, h)
-
+		println(z)
 		for y := 0; y < h; y++ {
 			row := make([]int, 0, w)
 			for x := 0; x < w; x++ {
 				val := landFunc(x+chunkx*16, y+chunky*16)
-				block := materials.STONE_1 + rand.Intn(2) //Default Block
+				block := materials.Sprites["STONE_1"] + rand.Intn(2) //Default Block
 				if z > val {
-					block = materials.AIR
-				} else if z == val {
-					block = materials.GRASS + rand.Intn(8)
+					block = materials.Sprites["AIR"]
+				} 
+				if z == val {
+					block = materials.Sprites["GRASS"]+ rand.Intn(8)
 				}
 
 				row = append(row, block)

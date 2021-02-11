@@ -14,7 +14,7 @@ import (
 
 //NumChunks defines the number of chunks visible at once
 const NumChunks = 25
-const chunksDimension =5
+const chunksDimension = 5
 
 //VoidColor defines the color of the background
 var VoidColor color.RGBA = colornames.Skyblue
@@ -27,7 +27,6 @@ const TileHeight = 32
 var spriteSheet pixel.Picture //maybe load this by stitching together others but for now this
 
 var sheetFrames []pixel.Rect
-
 
 //Sprite used for the selection cursor
 var SelectSprite *pixel.Sprite
@@ -51,11 +50,11 @@ func Render(win *pixelgl.Window, w, h, d int) {
 	SendString(fmt.Sprintf("World Render Time(ms): %d\n", time.Since(worldStart).Milliseconds()))
 
 	//Render Selectioncursor DB
-	//cursorStart:=time.Now()
-	//x, y := isoToWorldCoords(CalculateGamePosition(win, win.MousePosition()))
-	//mx := pixel.IM.Moved(worldToIsoCoords(x, y, 0))
-	//SelectSprite.Draw(win, mx)
-	//SendString(fmt.Sprintf("Cursor Time(ms): %d\n",time.Since(cursorStart).Milliseconds()))
+	cursorStart:=time.Now()
+	x, y := isoToWorldCoords(CalculateGamePosition(win, win.MousePosition()))
+	mx := pixel.IM.Moved(worldToIsoCoords(x, y, 0))
+	SelectSprite.Draw(win, mx)
+	SendString(fmt.Sprintf("Cursor Time(ms): %d\n",time.Since(cursorStart).Milliseconds()))
 
 	//lineStart:=time.Now()
 	//DrawLines(32, 32, 0, win)
@@ -114,8 +113,11 @@ func CheckVisibility(x, y, z, w, h, d, z_cutoff, ChunkIndex int) (bool, bool) {
 	return onFrontFace || exposed, !onFullXYFace && !(exposed || exposedToOtherChunkAirY || exposedToOtherChunkAirX)
 }
 
+//Initialize the render
 func InitRender() {
-	spriteSheet, sheetFrames = loadSheet("Assets/Custom3.png", TileWidth, TileHeight)
+	//spriteSheet, sheetFrames = loadSheet("Assets/Custom3.png", TileWidth, TileHeight)
+	spriteSheet, sheetFrames=materials.GetData()
+
 	fmt.Println("Loaded Environment")
 
 	//Create the batches and the sprite maps
@@ -124,5 +126,5 @@ func InitRender() {
 		(*ChunkReference)[i].Init()
 	}
 
-	SelectSprite = pixel.NewSprite(spriteSheet, sheetFrames[materials.CURSOR_TOP-1])
+	SelectSprite = pixel.NewSprite(spriteSheet, sheetFrames[0])
 }

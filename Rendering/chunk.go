@@ -58,9 +58,9 @@ func (c *Chunk) Init() {
 func (c *Chunk) UpdateTiles(ChunkIndex, cutoffHeight int) {
 	if c.tileDirty {
 		c.FindVisible(ChunkIndex, cutoffHeight)
+		
+		c.SetDirty(false)
 	}
-	//Set it to dirty so it fixes itself on startup
-	c.SetDirty(false)
 
 }
 
@@ -79,7 +79,6 @@ func (c *Chunk) Render(win *pixelgl.Window, chunkX, chunkY int) {
 func (c *Chunk) RenderToBatch(chunkX, chunkY int) {
 
 	if c.spriteDirty { //If no changes were made theres no need to redraw the batches so just leave it be
-
 		//Reset the batch
 		c.Batch.Clear()
 

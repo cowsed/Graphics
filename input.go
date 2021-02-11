@@ -48,7 +48,7 @@ func handleInput(win *pixelgl.Window) {
 		render.IncHeightCutoff(0)
 	}
 	if win.JustPressed(pixelgl.KeyMinus) {
-		render.DecHeightCutoff(WorldDepth)
+		render.DecHeightCutoff(ChunkDepth)
 	}
 
 	//Taking Screenshots

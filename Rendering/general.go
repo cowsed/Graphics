@@ -7,10 +7,10 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	_ "github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
-	"image"
+	_ "image"
 	_ "image/png"
 	_ "math"
-	"os"
+	_ "os"
 	"time"
 )
 
@@ -46,6 +46,7 @@ func SetAllDirty(val bool) {
 
 //Loads a sprite sheet into chunks of wxh
 //Returns the loaded image and the bounds of the sprites
+/*
 func loadSheet(fname string, w, h int) (pixel.Picture, []pixel.Rect) {
 
 	spritesheet, err := loadPicture(fname)
@@ -62,22 +63,8 @@ func loadSheet(fname string, w, h int) (pixel.Picture, []pixel.Rect) {
 
 	return spritesheet, frames
 }
-
+*/
 //Helper Loader Functions
-
-//Loads the picture
-func loadPicture(path string) (pixel.Picture, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	img, _, err := image.Decode(file)
-	if err != nil {
-		return nil, err
-	}
-	return pixel.PictureDataFromImage(img), nil
-}
 
 //Bit of a debug function
 //Draws grid lines at d

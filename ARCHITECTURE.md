@@ -31,5 +31,17 @@ Way to think about it is you can stand in the same unit block as an actor render
 - *UI.go* Holds code responsible for drawing the debug information and soon general information
 - *general.go* holds code that is mostly responsible for changing from non-visual game space (arrays of arrays of arrays) to the isometric view of the world
 
+
+Other communication can be done through a channel
+1 per chunk?
+1 per renderer?
+
+a unique identifier is sent along with a command
+
+unique id may be pointer to actor
+or something to the env tiles but idk whyd those need to be animated
+water doesnt need control probably
+yet it may tie into the physics system if that happens
+
 ## `Screenshots/`
 What it says on the tin. Screenshots of the visualization
