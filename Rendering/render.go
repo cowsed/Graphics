@@ -50,14 +50,26 @@ func Render(win *pixelgl.Window, w, h, d int) {
 	SendString(fmt.Sprintf("World Render Time(ms): %d\n", time.Since(worldStart).Milliseconds()))
 
 	//Render Selectioncursor DB
-	cursorStart:=time.Now()
+	cursorStart := time.Now()
 	x, y := isoToWorldCoords(CalculateGamePosition(win, win.MousePosition()))
-	mx := pixel.IM.Moved(worldToIsoCoords(x, y, 0))
+
+	x2, y2, z2 := FindIntersect(x, y)
+
+	seenTileIndex:=(*(*ChunkReference)[0].WorldData)[z2][y2][x2]-1
+	SendString(fmt.Sprintf("TileIndex %d : %s\n", seenTileIndex,materials.SpritesByIndex[seenTileIndex]))
+
+
+
+	mx := pixel.IM.Moved(worldToIsoCoords(x2, y2, z2))
 	SelectSprite.Draw(win, mx)
-	SendString(fmt.Sprintf("Cursor Time(ms): %d\n",time.Since(cursorStart).Milliseconds()))
+
+	mx2 := pixel.IM.Moved(worldToIsoCoords(x, y, 0))
+	SelectSprite.Draw(win, mx2)
+
+	SendString(fmt.Sprintf("Cursor Time(ms): %d\n", time.Since(cursorStart).Milliseconds()))
 
 	//lineStart:=time.Now()
-	//DrawLines(32, 32, 0, win)
+	DrawLines(32, 32, -1, win)
 	//SendString(fmt.Sprintf("Line Draw Time(ms): %d\n",time.Since(lineStart).Milliseconds()))
 
 	//Render UI
@@ -68,12 +80,14 @@ func Render(win *pixelgl.Window, w, h, d int) {
 func RenderWorld(win *pixelgl.Window, w, h, d int) {
 	x := 0
 	y := 0
-	for c := 0; c < NumChunks; c++ {
-		y = chunksDimension - c/chunksDimension
+	for c := NumChunks - 1; c >= 0; c-- {
+		y = c / chunksDimension
 		x = c % chunksDimension
+
+		ci := y*chunksDimension + (chunksDimension - x - 1)
 		//This will only update if it's been marked necessary - cool huh
-		(*ChunkReference)[c].UpdateTiles(c, heightCutoff)
-		(*ChunkReference)[c].Render(win, x, y)
+		(*ChunkReference)[ci].UpdateTiles(c, heightCutoff)
+		(*ChunkReference)[ci].Render(win, chunksDimension-x, y)
 	}
 
 }
@@ -109,14 +123,14 @@ func CheckVisibility(x, y, z, w, h, d, z_cutoff, ChunkIndex int) (bool, bool) {
 		}
 
 	}
-
-	return onFrontFace || exposed, !onFullXYFace && !(exposed || exposedToOtherChunkAirY || exposedToOtherChunkAirX)
+	//TODO FIX THis so it works with sensible chunk coordinates
+	return true||onFrontFace || exposed, !(true||!onFullXYFace && !(exposed || exposedToOtherChunkAirY || exposedToOtherChunkAirX))
 }
 
 //Initialize the render
 func InitRender() {
 	//spriteSheet, sheetFrames = loadSheet("Assets/Custom3.png", TileWidth, TileHeight)
-	spriteSheet, sheetFrames=materials.GetData()
+	spriteSheet, sheetFrames = materials.GetData()
 
 	fmt.Println("Loaded Environment")
 

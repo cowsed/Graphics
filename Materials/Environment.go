@@ -15,6 +15,7 @@ import (
 
 var NumTiles = 0
 var Sprites map[string]int
+var SpritesByIndex []string
 
 var Picture pixel.Picture
 var frames []pixel.Rect
@@ -48,6 +49,7 @@ func LoadSprites(fname string, picFname string) {
 		fmt.Println(record)
 
 		Sprites[record[0]] = index
+		SpritesByIndex=append(SpritesByIndex,record[0])
 
 		x, err := strconv.ParseFloat(record[1], 64)
 		if err != nil {

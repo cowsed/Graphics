@@ -1,7 +1,7 @@
 package render
 
 import (
-	"fmt"
+	_"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
@@ -11,14 +11,35 @@ import (
 	_ "image/png"
 	_ "math"
 	_ "os"
-	"time"
+	_"time"
 )
 
 //Calculates the position in the 2d image world that is where the mouse is (2d because this does not yet get world position)
 func CalculateGamePosition(win *pixelgl.Window, ScreenPos pixel.Vec) pixel.Vec {
 	cam := pixel.IM.Scaled(camPos.Add(win.Bounds().Center()), camZoom).Moved(pixel.ZV.Sub(camPos))
-	return cam.Unproject(ScreenPos)
+	return cam.Unproject(ScreenPos).Scaled(2)
 }
+
+//Returns the first position chunkx,chunky,x,y,z that something is found
+//Querying what is at that position with a tile vs actor is for later
+func FindIntersect(basex,basey int) (int,int,int) {
+	//make list of possible places
+	//Start pos = highest point
+	for z:=len(*(*ChunkReference)[0].WorldData)-heightCutoff; z>=0; z--{
+		x:=basex+z
+		y:=basey-z
+		
+		if (x>=0&&y>=0 && x<len((*(*ChunkReference)[0].WorldData)[0][0]) && y<len((*(*ChunkReference)[0].WorldData)[0])){
+			if (*(*ChunkReference)[0].WorldData)[z][y][x]!=0{
+				//A thing is found
+				return x,y,z
+			}
+		}
+	}
+	//error condition nothing found should have a better way of showing that though
+	return 0,0,0
+}
+
 
 //Tells the renderer that something has changed
 func SetChanged(change bool, index int) {
@@ -44,26 +65,6 @@ func SetAllDirty(val bool) {
 	}
 }
 
-//Loads a sprite sheet into chunks of wxh
-//Returns the loaded image and the bounds of the sprites
-/*
-func loadSheet(fname string, w, h int) (pixel.Picture, []pixel.Rect) {
-
-	spritesheet, err := loadPicture(fname)
-	if err != nil {
-		panic(err)
-	}
-
-	var frames []pixel.Rect
-	for y := spritesheet.Bounds().Min.Y; y < spritesheet.Bounds().Max.Y; y += float64(h) {
-		for x := spritesheet.Bounds().Min.X; x < spritesheet.Bounds().Max.X; x += float64(w) {
-			frames = append(frames, pixel.R(x, y, x+float64(w), y+float64(h)))
-		}
-	}
-
-	return spritesheet, frames
-}
-*/
 //Helper Loader Functions
 
 //Bit of a debug function
@@ -100,7 +101,6 @@ func worldToIsoCoords(x, y, z int) pixel.Vec {
 
 //Returns the bottom? level of what the world coords could be
 //One would need to cast rays down the line to figure out which non-air object is being looked at
-//TODO Fix this because it does not track out correctly
 func isoToWorldCoords(v pixel.Vec) (int, int) {
 	//Ah heck i  have to do a system of equation thing
 	/*
@@ -113,7 +113,6 @@ func isoToWorldCoords(v pixel.Vec) (int, int) {
 		16x=16y-y'
 
 	*/
-	isoConversionTime := time.Now()
 	y := ((v.X + (2.0 * v.Y)) / 64)
 	x := ((16.0*float64(y) - v.Y) / 16.0) + 1 //+1 to make things work or maybe not work but thats what it looks like
 	//This messes up when it gets to the -x or -y gets off by 1
@@ -124,7 +123,6 @@ func isoToWorldCoords(v pixel.Vec) (int, int) {
 		x--
 	}
 
-	SendString(fmt.Sprintf("Iso Conversion Time(ms): %f\n", time.Since(isoConversionTime).Seconds()*1000))
 	return int(x), int(y)
 }
 

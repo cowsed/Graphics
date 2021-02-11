@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"./People"
+	_"fmt"
+	"./World"
 	"./Rendering"
 )
 
@@ -55,10 +55,15 @@ func (l *Location) MakeRenderChunk() render.Chunk {
 }
 
 //Jsoning
+
+//Marshal to json
 func (l *Location) Marshal() string {
 
 	result, _ := json.Marshal(l)
-	fmt.Println(string(result))
 	
 	return string(result)
+}
+
+func (l *Location) Unmarshal(in []byte){
+	json.Unmarshal(in,l)
 }

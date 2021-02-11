@@ -69,7 +69,7 @@ func (c *Chunk) Render(win *pixelgl.Window, chunkX, chunkY int) {
 	//Send the relative chunkX and Y coordinates bc they are a state completely made up by the renderer
 
 	//Assemble the batch
-	c.RenderToBatch(chunkX, chunkY)
+	c.RenderToBatch(chunkX-1, chunkY)
 	//Draw to the window
 	c.Batch.Draw(win)
 }

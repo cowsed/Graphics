@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"./Materials"
-	"./People"
+	"./World"
 	"./Rendering"
 
 	"github.com/faiface/pixel"
@@ -114,15 +114,20 @@ func main() {
 	for i := 0; i < render.NumChunks; i++ {
 		//fmt.Println("Making chunks")
 
-		chunky := 5 - i/5
+		chunky := i/5
 		chunkx := i % 5
 		chunkData := GenMap3(ChunkWidth, ChunkHeight, ChunkDepth, chunkx, chunky)
 
 		chunk := Location{X: chunkx, Y: chunky, W: ChunkWidth, H: ChunkHeight, D: ChunkDepth, Actors:[]*people.Actor{}, Props: []string{}, Environment: &chunkData}
 
-		chunk.Marshal()
+		//Testing marshalling
+		s:=chunk.Marshal()
+		
+		newChunk:=Location{}
+		newChunk.Unmarshal([]byte(s))
 
-		WorldMap  = append(WorldMap, chunk)
+
+		WorldMap  = append(WorldMap, newChunk)
 		RenderChunkMap = append(RenderChunkMap, chunk.MakeRenderChunk())
 	}
 

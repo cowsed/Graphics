@@ -24,7 +24,7 @@ func (a *ActorRenderer) Init() {
 }
 
 func (a *ActorRenderer) makeChunkIndex() int {
-	return a.ChunkX + (chunksDimension-a.ChunkY)*chunksDimension
+	return a.ChunkX + (a.ChunkY)*chunksDimension
 }
 
 //Add Sprite adds the sprite to the pool of sprites to be included in the batch

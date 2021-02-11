@@ -1,5 +1,16 @@
 PROBLEMS
 
+
+
+Fix the getting of world coordinates by ray tracing througharray (rn its weirdly mirrored)
+somehow stop it from going to the block under a corner because that really makes no sense
+functionize it
+allow for intersection with entities
+
+
+
+
+
 Only updating the list of sprites when updating the world is bad like highly problematic
 Should update it whenever a sprite is added - or at least a dirty flag to recalculate once all the sprites have been added/changed position
 

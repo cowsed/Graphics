@@ -9,8 +9,8 @@ import(
 
 //Returns a value for the surface based on a mathematical function of the form f(x,y) defined here
 func landFunc(x, y int) int {
-	w := 40
-	h := 56
+	w := 32
+	h := 40
 	r := math.Sqrt(float64((x-w)*(x-w))+float64((y-h)*(y-h))) / 30
 	t := math.Atan2(float64(x-w), float64(y-h))
 	f := math.Cos(t * 6)
