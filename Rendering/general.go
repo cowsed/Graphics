@@ -1,7 +1,7 @@
 package render
 
 import (
-	_"fmt"
+	_ "fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
@@ -11,7 +11,7 @@ import (
 	_ "image/png"
 	_ "math"
 	_ "os"
-	_"time"
+	_ "time"
 )
 
 //Calculates the position in the 2d image world that is where the mouse is (2d because this does not yet get world position)
@@ -22,24 +22,28 @@ func CalculateGamePosition(win *pixelgl.Window, ScreenPos pixel.Vec) pixel.Vec {
 
 //Returns the first position chunkx,chunky,x,y,z that something is found
 //Querying what is at that position with a tile vs actor is for later
-func FindIntersect(basex,basey int) (int,int,int) {
+func FindIntersect(basex, basey int) (int, int, int, int, int, bool) {
 	//make list of possible places
 	//Start pos = highest point
-	for z:=len(*(*ChunkReference)[0].WorldData)-heightCutoff; z>=0; z--{
-		x:=basex+z
-		y:=basey-z
-		
-		if (x>=0&&y>=0 && x<len((*(*ChunkReference)[0].WorldData)[0][0]) && y<len((*(*ChunkReference)[0].WorldData)[0])){
-			if (*(*ChunkReference)[0].WorldData)[z][y][x]!=0{
-				//A thing is found
-				return x,y,z
+	for z := len(*(*ChunkReference)[0].WorldData) - heightCutoff - 1; z >= 0; z-- {
+		x := basex + z
+		y := basey - z
+
+		//&& x < len((*(*ChunkReference)[0].WorldData)[0][0]) && y < len((*(*ChunkReference)[0].WorldData)[0])
+
+		if x >= 0 && y >= 0 {
+			chunkx := x / 16
+			chunky := y / 16
+			ci := chunky*chunksDimension + chunkx
+			//A thing is found
+			if (*(*ChunkReference)[ci].WorldData)[z][y%16][x%16] != 0 {
+				return chunkx, chunky, x, y, z, true
 			}
 		}
 	}
 	//error condition nothing found should have a better way of showing that though
-	return 0,0,0
+	return 0, 0, 0, 0, 0, false
 }
-
 
 //Tells the renderer that something has changed
 func SetChanged(change bool, index int) {

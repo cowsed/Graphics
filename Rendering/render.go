@@ -1,11 +1,10 @@
 package render
 
 import (
+	"../Materials"
 	"fmt"
 	"image/color"
 	"time"
-
-	"../Materials"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
@@ -53,12 +52,14 @@ func Render(win *pixelgl.Window, w, h, d int) {
 	cursorStart := time.Now()
 	x, y := isoToWorldCoords(CalculateGamePosition(win, win.MousePosition()))
 
-	x2, y2, z2 := FindIntersect(x, y)
+	chunkx, chunky, x2, y2, z2, success := FindIntersect(x, y)
 
-	seenTileIndex:=(*(*ChunkReference)[0].WorldData)[z2][y2][x2]-1
-	SendString(fmt.Sprintf("TileIndex %d : %s\n", seenTileIndex,materials.SpritesByIndex[seenTileIndex]))
-
-
+	if success {
+		seenTileIndex := (*(*ChunkReference)[chunky*5+chunkx].WorldData)[z2][y2%16][x2%16] - 1
+		SendString(fmt.Sprintf("TileIndex %d : %s\n", seenTileIndex, materials.SpritesByIndex[seenTileIndex]))
+	} else {
+		SendString(fmt.Sprintln("TileIndex X : No Block found"))
+	}
 
 	mx := pixel.IM.Moved(worldToIsoCoords(x2, y2, z2))
 	SelectSprite.Draw(win, mx)
@@ -66,7 +67,7 @@ func Render(win *pixelgl.Window, w, h, d int) {
 	mx2 := pixel.IM.Moved(worldToIsoCoords(x, y, 0))
 	SelectSprite.Draw(win, mx2)
 
-	SendString(fmt.Sprintf("Cursor Time(ms): %d\n", time.Since(cursorStart).Milliseconds()))
+	SendString(fmt.Sprintf("Cursor Time(ms): %.3f\n", time.Since(cursorStart).Seconds()*1000))
 
 	//lineStart:=time.Now()
 	DrawLines(32, 32, -1, win)
@@ -124,7 +125,7 @@ func CheckVisibility(x, y, z, w, h, d, z_cutoff, ChunkIndex int) (bool, bool) {
 
 	}
 	//TODO FIX THis so it works with sensible chunk coordinates
-	return true||onFrontFace || exposed, !(true||!onFullXYFace && !(exposed || exposedToOtherChunkAirY || exposedToOtherChunkAirX))
+	return true || onFrontFace || exposed, !(true || !onFullXYFace && !(exposed || exposedToOtherChunkAirY || exposedToOtherChunkAirX))
 }
 
 //Initialize the render
@@ -140,5 +141,5 @@ func InitRender() {
 		(*ChunkReference)[i].Init()
 	}
 
-	SelectSprite = pixel.NewSprite(spriteSheet, sheetFrames[0])
+	SelectSprite = pixel.NewSprite(spriteSheet, sheetFrames[1])
 }
