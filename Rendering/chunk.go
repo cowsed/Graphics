@@ -5,6 +5,8 @@ import (
 	"image/color"
 	"sort"
 
+	"../Config"
+	
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 )
@@ -29,7 +31,7 @@ type Chunk struct {
 	MaxHeight int
 
 	//Holds the world in the form of tiles
-	WorldData *[][][]int //Holds the tile materials
+	WorldData *[config.ChunkDepth][config.ChunkHeight][config.ChunkWidth]int //Holds the tile materials
 
 	//Holds the Tiles that have been computed to be visible
 	VisibleData []Tile
@@ -58,7 +60,7 @@ func (c *Chunk) Init() {
 func (c *Chunk) UpdateTiles(ChunkIndex, cutoffHeight int) {
 	if c.tileDirty {
 		c.FindVisible(ChunkIndex, cutoffHeight)
-		
+
 		c.SetDirty(false)
 	}
 
@@ -77,8 +79,8 @@ func (c *Chunk) Render(win *pixelgl.Window, chunkX, chunkY int) {
 //Render the world to the batch
 //TODO: Look into the cache locality of this solution (a sprite interface may work better but it also may not)
 func (c *Chunk) RenderToBatch(chunkX, chunkY int) {
-
 	if c.spriteDirty { //If no changes were made theres no need to redraw the batches so just leave it be
+
 		//Reset the batch
 		c.Batch.Clear()
 

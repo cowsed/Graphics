@@ -4,42 +4,36 @@ import (
 	"fmt"
 	"time"
 
+	"./Config"
 	"./Materials"
-	"./World"
 	"./Rendering"
+	"./World"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/pkg/profile"
 )
+
+//Further Profiling
+import _ "net/http/pprof"
+import "net/http"
 
 //Debug things
 
 //DOProfile is a debug variable saying whether or not to make a profile when it runs
-const DOProfile = true
+const DOProfile = false
 
 //DBBool is a boolean controlled by keys to test random features
-var DBBool bool = true
-
-const (
-	//WorldWidth is the size of a chunk(x)
-	ChunkWidth int = 16
-	//WorldHeight is the height of a chunk (y)
-	ChunkHeight int = 16
-	//WorldDepth is the depth of a chunk (z)
-	ChunkDepth int = 16
-)
+var DBBool bool = false
 
 //Globals
 
 //DoVSync controls whether or not to vsync
-var DoVSync bool = true
+var DoVSync bool = false
 
 //WorldMap holds the world grid that holds the world (may soon be changed to a more memory friendly version
 var WorldMap []Location
 
 var RenderChunkMap []render.Chunk
-
 
 //Testing
 //Peoples
@@ -81,7 +75,7 @@ func run() {
 
 		//Render the world
 		drawStart := time.Now()
-		render.Render(win, ChunkWidth, ChunkHeight, ChunkDepth)
+		render.Render(win, config.ChunkWidth, config.ChunkHeight, config.ChunkDepth)
 
 		//Timing things
 		drawDt := time.Since(drawStart).Seconds()
@@ -105,7 +99,11 @@ func run() {
 func main() {
 	//If Specified log to a profile
 	if DOProfile {
-		defer profile.Start(profile.ProfilePath(".")).Stop()
+		//defer profile.Start(profile.ProfilePath(".")).Stop()
+
+		go func() {
+			fmt.Println(http.ListenAndServe("localhost:6060", nil))
+		}()
 	}
 
 	materials.LoadSprites("Materials/tiles.csv", "Assets/Custom3.png")
@@ -114,20 +112,19 @@ func main() {
 	for i := 0; i < render.NumChunks; i++ {
 		//fmt.Println("Making chunks")
 
-		chunky := i/5
+		chunky := i / 5
 		chunkx := i % 5
-		chunkData := GenMap3(ChunkWidth, ChunkHeight, ChunkDepth, chunkx, chunky)
+		chunkData := GenMap3(config.ChunkWidth, config.ChunkHeight, config.ChunkDepth, chunkx, chunky)
 
-		chunk := Location{X: chunkx, Y: chunky, W: ChunkWidth, H: ChunkHeight, D: ChunkDepth, Actors:[]*people.Actor{}, Props: []string{}, Environment: &chunkData}
+		chunk := Location{X: chunkx, Y: chunky, W: config.ChunkWidth, H: config.ChunkHeight, D: config.ChunkDepth, Actors: []*people.Actor{}, Props: []string{}, Environment: &chunkData}
 
 		//Testing marshalling
-		s:=chunk.Marshal()
-		
-		newChunk:=Location{}
+		s := chunk.Marshal()
+
+		newChunk := Location{}
 		newChunk.Unmarshal([]byte(s))
 
-
-		WorldMap  = append(WorldMap, newChunk)
+		WorldMap = append(WorldMap, newChunk)
 		RenderChunkMap = append(RenderChunkMap, chunk.MakeRenderChunk())
 	}
 
@@ -145,14 +142,11 @@ func main() {
 
 	fmt.Println(person)
 
-	
 	personRenderer2 := &render.ActorRenderer{Sheet: nil, FrameIndex: materials.Sprites["GRASS_LESS_2"]}
 	person2 := people.Actor{Name: "Timothy2", X: 0, Y: 1, Z: 10, Renderer: personRenderer2}
 
 	//person2.AddToChunk(&person2)
 	WorldMap[0].AddActor(&person2)
-
-
 
 	fmt.Println(person2)
 

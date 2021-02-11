@@ -57,6 +57,8 @@ func Render(win *pixelgl.Window, w, h, d int) {
 	if success {
 		seenTileIndex := (*(*ChunkReference)[chunky*5+chunkx].WorldData)[z2][y2%16][x2%16] - 1
 		SendString(fmt.Sprintf("TileIndex %d : %s\n", seenTileIndex, materials.SpritesByIndex[seenTileIndex]))
+		SendString(fmt.Sprintln("Desc: ",materials.Descriptions[seenTileIndex]))
+
 	} else {
 		SendString(fmt.Sprintln("TileIndex X : No Block found"))
 	}
@@ -70,7 +72,7 @@ func Render(win *pixelgl.Window, w, h, d int) {
 	SendString(fmt.Sprintf("Cursor Time(ms): %.3f\n", time.Since(cursorStart).Seconds()*1000))
 
 	//lineStart:=time.Now()
-	DrawLines(32, 32, -1, win)
+	//DrawLines(32, 32, -1, win)
 	//SendString(fmt.Sprintf("Line Draw Time(ms): %d\n",time.Since(lineStart).Milliseconds()))
 
 	//Render UI

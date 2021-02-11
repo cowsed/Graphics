@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	_"fmt"
+	
+	"./Config"
 	"./World"
 	"./Rendering"
 )
@@ -19,7 +21,7 @@ type Location struct {
 
 	Props []string //json:props
 
-	Environment *[][][]int //json:environment
+	Environment *[config.ChunkDepth][config.ChunkHeight][config.ChunkWidth]int //json:environment
 }
 
 

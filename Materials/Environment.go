@@ -2,7 +2,7 @@ package materials
 
 import (
 	"encoding/csv"
-	"fmt"
+	_"fmt"
 	"github.com/faiface/pixel"
 	"image"
 	"io"
@@ -16,6 +16,8 @@ import (
 var NumTiles = 0
 var Sprites map[string]int
 var SpritesByIndex []string
+var Descriptions []string
+
 
 var Picture pixel.Picture
 var frames []pixel.Rect
@@ -35,6 +37,7 @@ func LoadSprites(fname string, picFname string) {
 
 	frames = make([]pixel.Rect, 0, NumTiles)
 	Sprites = make(map[string]int)
+	Descriptions=make([]string, 0, NumTiles)
 
 	index := 1
 	for {
@@ -46,9 +49,11 @@ func LoadSprites(fname string, picFname string) {
 			log.Fatal(err)
 		}
 
-		fmt.Println(record)
+		//fmt.Println(record)
 
 		Sprites[record[0]] = index
+		Descriptions = append(Descriptions, record[9])
+
 		SpritesByIndex=append(SpritesByIndex,record[0])
 
 		x, err := strconv.ParseFloat(record[1], 64)

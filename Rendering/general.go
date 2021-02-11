@@ -29,7 +29,6 @@ func FindIntersect(basex, basey int) (int, int, int, int, int, bool) {
 		x := basex + z
 		y := basey - z
 
-		//&& x < len((*(*ChunkReference)[0].WorldData)[0][0]) && y < len((*(*ChunkReference)[0].WorldData)[0])
 
 		if x >= 0 && y >= 0 {
 			chunkx := x / 16

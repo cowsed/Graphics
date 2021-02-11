@@ -13,6 +13,8 @@ import (
 	"golang.org/x/image/font/basicfont"
 )
 
+
+
 var basicAtlas = text.NewAtlas(basicfont.Face7x13, text.ASCII)
 
 var fpsSum = 0.0
@@ -109,6 +111,15 @@ func SendFPS(fps float64) { //Maybe turn this into a send data function later to
 	//fmt.Println(renderFps)
 
 	fpsGraph[fpsGraphIndex] = fps
+	/*
+	if fpsGraphIndex != 0 {
+		if fpsGraph[fpsGraphIndex-1]-fps > 20 {
+			fmt.Println("LongFrame")
+		} else {
+			fmt.Println("Normal Frame")
+		}
+	}
+	*/
 	fpsGraphIndex++
 	fpsGraphIndex = fpsGraphIndex % 64
 

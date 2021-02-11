@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"./Config"
 	"./Rendering"
 
 	"github.com/faiface/pixel"
@@ -48,7 +49,7 @@ func handleInput(win *pixelgl.Window) {
 		render.IncHeightCutoff(0)
 	}
 	if win.JustPressed(pixelgl.KeyMinus) {
-		render.DecHeightCutoff(ChunkDepth)
+		render.DecHeightCutoff(config.ChunkDepth)
 	}
 
 	//Taking Screenshots

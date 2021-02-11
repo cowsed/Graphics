@@ -3,7 +3,8 @@ package main
 import(
 		"math"
 		"math/rand"
-
+		
+		"./Config"
 		"./Materials"
 )
 
@@ -57,15 +58,14 @@ func GenMap2(w, h, d int) [][][]int {
 */
 
 //GenMap3 creates a map  in the same way as GenMap2 but that accounts for chunks
-func GenMap3(w, h, d, chunkx, chunky int) [][][]int {
+func GenMap3(w, h, d, chunkx, chunky int) [config.ChunkDepth][config.ChunkHeight][config.ChunkWidth]int {
 
-	world := make([][][]int, 0, d)
+	world := [config.ChunkDepth][config.ChunkHeight][config.ChunkWidth]int{}
 
 	for z := 0; z < d; z++ {
-		floor := make([][]int, 0, h)
-		println(z)
+		floor:=[config.ChunkHeight][config.ChunkWidth]int{} //:= make([][]int, 0, h)
 		for y := 0; y < h; y++ {
-			row := make([]int, 0, w)
+			row := [config.ChunkWidth]int{}//make([]int, 0, w)
 			for x := 0; x < w; x++ {
 				val := landFunc(x+chunkx*16, y+chunky*16)
 				block := materials.Sprites["STONE_1"] + rand.Intn(2) //Default Block
@@ -76,13 +76,13 @@ func GenMap3(w, h, d, chunkx, chunky int) [][][]int {
 					block = materials.Sprites["GRASS"]+ rand.Intn(8)
 				}
 
-				row = append(row, block)
+				row[x]=block// = append(row, block)
 
 			}
-			floor = append(floor, row)
+			floor[y]=row
 
 		}
-		world = append(world, floor)
+		world [z]=floor// append(world, floor)
 	}
 	return world
 }
