@@ -54,20 +54,24 @@ func Render(win *pixelgl.Window, w, h, d int) {
 
 	chunkx, chunky, x2, y2, z2, success := FindIntersect(x, y)
 
+	mx := pixel.IM.Moved(worldToIsoCoords(x, y, 0))
+
 	if success {
 		seenTileIndex := (*(*ChunkReference)[chunky*5+chunkx].WorldData)[z2][y2%16][x2%16] - 1
 		SendString(fmt.Sprintf("TileIndex %d : %s\n", seenTileIndex, materials.SpritesByIndex[seenTileIndex]))
-		SendString(fmt.Sprintln("Desc: ",materials.Descriptions[seenTileIndex]))
+		SendString(fmt.Sprintln("Desc: ", materials.Descriptions[seenTileIndex]))
+
+		mx = pixel.IM.Moved(worldToIsoCoords(x2, y2, z2))
+
+		SelectSprite.Set(spriteSheet, sheetFrames[materials.Sprites["CURSOR_TOP"]-1])
 
 	} else {
 		SendString(fmt.Sprintln("TileIndex X : No Block found"))
+		SelectSprite.Set(spriteSheet, sheetFrames[materials.Sprites["CURSOR_TOP_ERROR"]-1])
+
 	}
 
-	mx := pixel.IM.Moved(worldToIsoCoords(x2, y2, z2))
 	SelectSprite.Draw(win, mx)
-
-	mx2 := pixel.IM.Moved(worldToIsoCoords(x, y, 0))
-	SelectSprite.Draw(win, mx2)
 
 	SendString(fmt.Sprintf("Cursor Time(ms): %.3f\n", time.Since(cursorStart).Seconds()*1000))
 

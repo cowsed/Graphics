@@ -63,7 +63,7 @@ func GenMap3(w, h, d, chunkx, chunky int) [config.ChunkDepth][config.ChunkHeight
 	world := [config.ChunkDepth][config.ChunkHeight][config.ChunkWidth]int{}
 
 	for z := 0; z < d; z++ {
-		floor:=[config.ChunkHeight][config.ChunkWidth]int{} //:= make([][]int, 0, h)
+		floor:=[config.ChunkHeight][config.ChunkWidth]int{}
 		for y := 0; y < h; y++ {
 			row := [config.ChunkWidth]int{}//make([]int, 0, w)
 			for x := 0; x < w; x++ {
@@ -75,14 +75,14 @@ func GenMap3(w, h, d, chunkx, chunky int) [config.ChunkDepth][config.ChunkHeight
 				if z == val {
 					block = materials.Sprites["GRASS"]+ rand.Intn(8)
 				}
+				row[x]=block
 
-				row[x]=block// = append(row, block)
 
 			}
 			floor[y]=row
 
 		}
-		world [z]=floor// append(world, floor)
+		world [z]=floor
 	}
 	return world
 }

@@ -60,7 +60,7 @@ func (a *ActorRenderer) RemoveSprite() {
 //Sets the sprite renderer to use the sprite specified in the actor renderer - called when drawing
 func (a *ActorRenderer) UpdateSpriteImage() {
 	
-	a.Sprite.Set(*a.Sheet, sheetFrames[a.FrameIndex])
+	a.Sprite.Set(*a.Sheet, sheetFrames[a.FrameIndex-1])
 }
 
 

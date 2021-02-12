@@ -26,10 +26,10 @@ func (a *Actor) Update() {
 	
 	
 	if AnimationTick%12 == 0 {
-		if a.Renderer.FrameIndex == materials.Sprites["STONE_1"] {
-			a.Renderer.UpdateSprite(materials.Sprites["STONE_2"])
+		if a.Renderer.FrameIndex == materials.Sprites["ROCK_WALL_V_1"] {
+			a.Renderer.UpdateSprite(materials.Sprites["ROCK_WALL_H_1"])
 		} else {
-			a.Renderer.UpdateSprite(materials.Sprites["STONE_1"])
+			a.Renderer.UpdateSprite(materials.Sprites["ROCK_WALL_V_1"])
 		}
 	}
 }

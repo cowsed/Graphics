@@ -2,7 +2,7 @@ package materials
 
 import (
 	"encoding/csv"
-	_"fmt"
+	"fmt"
 	"github.com/faiface/pixel"
 	"image"
 	"io"
@@ -84,6 +84,9 @@ func LoadSprites(fname string, picFname string) {
 		log.Fatal(err)
 	}
 
+	fmt.Println(Sprites)
+	fmt.Println(SpritesByIndex)
+	fmt.Println(Descriptions)
 }
 
 //Loads the picture
